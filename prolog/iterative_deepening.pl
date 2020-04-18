@@ -7,6 +7,10 @@ iterative_deepening_aux(Soluzione, SogliaIniziale) :-
 
 iterative_deepening_aux(Soluzione, SogliaIniziale) :-
   NuovaSoglia is SogliaIniziale+1,
+  num_righe(R),
+  num_colonne(C),
+  SogliaLimite is R*C,
+  SogliaIniziale < SogliaLimite,
   iterative_deepening_aux(Soluzione, NuovaSoglia),!.
 
 depth_limit_search(Soluzione, Soglia) :-
