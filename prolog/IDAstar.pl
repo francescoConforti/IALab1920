@@ -1,19 +1,29 @@
-iterative_deepening(Soluzione, Profondita) :-
+:-dynamic(minF/1).
+
+idaStar(Soluzione, Profondita) :-
   iniziale(S),
   manhattan(S, SogliaIniziale),
-  iterative_deepening_aux(Soluzione, SogliaIniziale),
-  length(Soluzione, Profondita).
-
-iterative_deepening_aux(Soluzione, SogliaIniziale) :-
-  depth_limit_search(Soluzione,SogliaIniziale).
-
-iterative_deepening_aux(Soluzione, SogliaIniziale) :-
-  NuovaSoglia is SogliaIniziale+1,
   num_righe(R),
   num_colonne(C),
   SogliaLimite is R*C,
   SogliaIniziale < SogliaLimite,
-  iterative_deepening_aux(Soluzione, NuovaSoglia),!.
+  retractall(minF(_)),
+  assert(minF(SogliaLimite)),
+  idaStar_aux(Soluzione, SogliaIniziale),
+  length(Soluzione, Profondita).
+
+idaStar_aux(Soluzione, SogliaIniziale) :-
+  depth_limit_search(Soluzione,SogliaIniziale).
+
+idaStar_aux(Soluzione, _) :-
+  minF(NuovaSoglia),
+  num_righe(R),
+  num_colonne(C),
+  SogliaLimite is R*C,
+  NuovaSoglia < SogliaLimite,
+  retractall(minF(_)),
+  assert(minF(SogliaLimite)),
+  idaStar_aux(Soluzione, NuovaSoglia),!.
 
 depth_limit_search(Soluzione, Soglia) :-
   iniziale(S),
@@ -21,12 +31,25 @@ depth_limit_search(Soluzione, Soglia) :-
 
 dfs_aux(S, [], _, _) :- finale(S).
 dfs_aux(S, [Azione|AzioniTail], Visitati, Soglia) :-
-  Soglia>0,
+  length(Visitati, LenVisitati),
+  G is LenVisitati - 1,
+  manhattan(S, H),
+  F is G + H,
+  F =< Soglia, !,
   applicabile(Azione, S),
   trasforma(Azione, S, SNuovo),
   \+member(SNuovo, Visitati),
-  NuovaSoglia is Soglia-1,
-  dfs_aux(SNuovo, AzioniTail, [SNuovo|Visitati], NuovaSoglia).
+  dfs_aux(SNuovo, AzioniTail, [SNuovo|Visitati], Soglia).
+dfs_aux(S, _, Visitati, _):-
+  length(Visitati, LenVisitati),
+  G is LenVisitati - 1,
+  manhattan(S, H),
+  F is G + H,
+  minF(Min),
+  F < Min,
+  retractall(minF(_)),
+  assert(minF(F)),
+  !, fail.
 
 manhattan(pos(Riga, Colonna), Distanza):-
   finale(pos(RigaFinale, ColonnaFinale)),
