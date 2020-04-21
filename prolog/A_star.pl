@@ -12,7 +12,7 @@ a_star([nodo(S,AzioniPerS,_)|CodaStati],Visitati,Soluzione):-
     append(CodaStati,StatiFigli,NuovaCoda),
     sort(3, @=<, NuovaCoda, NuovaCodaOrdinata),
     a_star(NuovaCodaOrdinata,[S|Visitati],Soluzione).
-S
+
 generaStatiFigli(_,_,[],[]).
 
 generaStatiFigli(nodo(S,AzioniPerS,_),Visitati,[Az|AltreAzioni],[nodo(SNuovo,[Az|AzioniPerS], F)|AltriFigli]):-
