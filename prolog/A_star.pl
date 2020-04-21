@@ -1,7 +1,3 @@
-
-
-
-
 esegui_a_star(Soluzione):-
     iniziale(S),
     euristica(S, Distanza),
@@ -10,15 +6,13 @@ esegui_a_star(Soluzione):-
 a_star([nodo(S,AzioniPerS,_)|_],_,AzioniPerS):-
     finale(S),!.
 
-a_star([nodo(S,AzioniPerS,F)|CodaStati],Visitati,Soluzione):-
+a_star([nodo(S,AzioniPerS,_)|CodaStati],Visitati,Soluzione):-
     findall(Az,applicabile(Az,S),ListaAzioniApplicabili),
     generaStatiFigli(nodo(S,AzioniPerS, _),[S|Visitati],ListaAzioniApplicabili,StatiFigli),
     append(CodaStati,StatiFigli,NuovaCoda),
     sort(3, @=<, NuovaCoda, NuovaCodaOrdinata),
     a_star(NuovaCodaOrdinata,[S|Visitati],Soluzione).
-
-
-
+S
 generaStatiFigli(_,_,[],[]).
 
 generaStatiFigli(nodo(S,AzioniPerS,_),Visitati,[Az|AltreAzioni],[nodo(SNuovo,[Az|AzioniPerS], F)|AltriFigli]):-

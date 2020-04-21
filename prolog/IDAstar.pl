@@ -2,7 +2,7 @@
 
 idaStar(Soluzione, Profondita) :-
   iniziale(S),
-  manhattan(S, SogliaIniziale),
+  euristica(S, SogliaIniziale),
   num_righe(R),
   num_colonne(C),
   SogliaLimite is R*C,
@@ -33,7 +33,7 @@ dfs_aux(S, [], _, _) :- finale(S).
 dfs_aux(S, [Azione|AzioniTail], Visitati, Soglia) :-
   length(Visitati, LenVisitati),
   G is LenVisitati - 1,
-  manhattan(S, H),
+  euristica(S, H),
   F is G + H,
   F =< Soglia, !,
   applicabile(Azione, S),
@@ -43,7 +43,7 @@ dfs_aux(S, [Azione|AzioniTail], Visitati, Soglia) :-
 dfs_aux(S, _, Visitati, _):-
   length(Visitati, LenVisitati),
   G is LenVisitati - 1,
-  manhattan(S, H),
+  euristica(S, H),
   F is G + H,
   minF(Min),
   F < Min,
