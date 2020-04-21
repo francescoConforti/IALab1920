@@ -1,9 +1,10 @@
 
 
 
+
 esegui_a_star(Soluzione):-
     iniziale(S),
-    manhattan_distance(S, Distanza),
+    euristica(S, Distanza),
     a_star([nodo(S,[], Distanza)],[],Soluzione).
 
 a_star([nodo(S,AzioniPerS,_)|_],_,AzioniPerS):-
@@ -24,7 +25,7 @@ generaStatiFigli(nodo(S,AzioniPerS,_),Visitati,[Az|AltreAzioni],[nodo(SNuovo,[Az
     trasforma(Az,S,SNuovo),
     \+member(SNuovo,Visitati),
     !,
-    manhattan_distance(SNuovo, Distanza),
+    euristica(SNuovo, Distanza),
     length(AzioniPerS, G),
     G1 is G+1,
     F is G1 + Distanza,
