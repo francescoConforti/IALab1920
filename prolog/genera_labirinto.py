@@ -6,7 +6,7 @@ def labirinto_random(lato, occupate):
   numOccupate = totali * occupate / 100
   ostacoli = []
   n = 0
-  f = open("./labirinto_casuale.pl", "w")
+  f = open("./labirinto_personalizzato.pl", "w")
   f.write("num_colonne(" + str(lato) + ").\n")
   f.write("num_righe(" + str(lato) + ").\n")
   while(n < numOccupate):
@@ -32,17 +32,17 @@ def labirinto_random(lato, occupate):
 def labirinto_file(path):
   with open(path) as toRead:
     labirinto = toRead.readlines()
-    toWrite = open("./labirinto_casuale.pl", "w")
+    toWrite = open("./labirinto_personalizzato.pl", "w")
     toWrite.write("num_righe(" + str(len(labirinto)) + ").\n")
     toWrite.write("num_colonne(" + str(len(labirinto[0])) + ").\n")
-    for i in range(1, len(labirinto) +1):
-      for j in range(1, len(labirinto[0]) +1):
+    for i in range(0, len(labirinto)):
+      for j in range(0, len(labirinto[0])):
         if labirinto[i][j] == "S":
-          toWrite.write("iniziale(pos(" + str(i) + "," + str(j) + ")).\n")
+          toWrite.write("iniziale(pos(" + str(i+1) + "," + str(j+1) + ")).\n")
         elif labirinto[i][j] == "G":
-          toWrite.write("finale(pos(" + str(i) + "," + str(j) + ")).\n")
+          toWrite.write("finale(pos(" + str(i+1) + "," + str(j+1) + ")).\n")
         elif labirinto[i][j] == "W":
-          toWrite.write("occupata(pos(" + str(i) + "," + str(j) + ")).\n")
+          toWrite.write("occupata(pos(" + str(i+1) + "," + str(j+1) + ")).\n")
     toWrite.close()
 
 if __name__ == "__main__":
@@ -51,6 +51,12 @@ if __name__ == "__main__":
   parser.add_argument('-f', '--file', nargs=1, help="crea un labirinto da file specificando il percorso")
   args = parser.parse_args()
   if "random" in args and args.random != None:
+    if args.random[0] < 2:
+      print("labirinto troppo piccolo")
+      exit(1)
+    if args.random[1] < 0 or args.random[1] > 90:
+      print("percentuale di ostacoli non accettabile")
+      exit(2)
     labirinto_random(args.random[0], args.random[1])
   elif "file" in args and args.file != None:
-    labirinto_file(args.file)
+    labirinto_file(args.file[0])
