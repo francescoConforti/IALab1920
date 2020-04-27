@@ -1,5 +1,5 @@
 % *******************************************
-%         DOCENTI
+%                   DOCENTI
 % *******************************************
 docente(muzzetto).
 docente(pozzato).
@@ -54,3 +54,26 @@ insegnamento(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_
 insegnamento(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, schifanella, 10).
 insegnamento(la_gestione_delle_risorse_umane, lombardo, 10).
 insegnamento(i_vincoli_giuridici_del_progetto_diritto_dei_media, travostino, 10).
+
+% ***********************************************************************************
+%                                   SETTIMANE (TODO)
+% ***********************************************************************************
+
+settimane(24).
+settimana(1..S) :- settimane(S).
+giorni(6).
+giorno(1..G) :- giorni(G). % lunedi...sabato
+ore(8).
+ora(1..O) :- ore(O).
+%haOre(giorno, settimana, ore)
+% N { haOre(5, S, 8) : settimana(S) } N :- settimane(N).  % venerdì ha 8 ore tutte le settimane
+N { haOre(6, S, O) : settimana(S), O = (4;5) } N :- settimane(N).  % sabato ha 4 o 5 ore tutte le settimane
+1 { haOre(6, S, O) : ora(O) } 1 :- settimana(S). 
+% 1 { haOre(G, 7, 8) } 1 :- G = 1..4. % settimana 7 tutti i giorni da lunedì a giovedì hanno 8 ore
+% 1 { haOre(G, 16, 8) } 1 :- G = 1..4.  % settimana 16 tutti i giorni da lunedì a giovedì hanno 8 ore
+
+% **************************************************************************************
+%                                   ASSEGNAMENTI
+% **************************************************************************************
+
+#show haOre/3.
