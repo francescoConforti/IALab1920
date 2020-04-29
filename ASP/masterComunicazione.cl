@@ -55,8 +55,10 @@ insegnamento(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_
 insegnamento(la_gestione_delle_risorse_umane, lombardo, 10).
 insegnamento(i_vincoli_giuridici_del_progetto_diritto_dei_media, travostino, 10).
 
+corso(C) :- insegnamento(C, _, _).
+
 % ***********************************************************************************
-%                                   SETTIMANE (TODO)
+%                                   SETTIMANE
 % ***********************************************************************************
 
 settimane(24).
@@ -65,7 +67,7 @@ giorni(6).
 giorno(1..G) :- giorni(G). % lunedi...sabato
 ore(8).
 ora(1..O) :- ore(O).
-%haOre(giorno, settimana, ore)
+% haOre(giorno, settimana, ore)
 N { haOre(5, S, 8) : settimana(S) } N :- settimane(N).  % venerdì ha 8 ore tutte le settimane
 N { haOre(6, S, O) : settimana(S), O = (4;5) } N :- settimane(N).  % sabato ha 4 o 5 ore tutte le settimane
 1 { haOre(6, S, O) : ora(O) } 1 :- settimana(S). 
@@ -76,4 +78,13 @@ N { haOre(6, S, O) : settimana(S), O = (4;5) } N :- settimane(N).  % sabato ha 4
 %                                   ASSEGNAMENTI
 % **************************************************************************************
 
-#show haOre/3.
+% assegna(Corso, Settimana, Giorno, Ora)
+% assegno a ogni corso il numero di ore che gli spetta
+OreMax { assegna(Corso, S, G, O) : haOre(G, S, OraDelGiorno), ora(O), O <= OraDelGiorno } OreMax :- insegnamento(Corso, _, OreMax).
+% due corsi non possono essere la stessa ora
+:- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), Corso1 != Corso2.
+% un docente non può fare due corsi nella stessa ora
+:- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), insegnamento(Corso1, Docente, _), insegnamento(Corso2, Docente, _), Corso1 != Corso2.
+
+
+#show assegna/4.
