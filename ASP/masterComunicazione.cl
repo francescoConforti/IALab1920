@@ -96,4 +96,9 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 % l’insegnamento “Project Management” deve concludersi non oltre la prima settimana full-time
 :- assegna(project_management, S, G, O), S>7.
 
+%le prime due ore di lezione sono dedicate alla presentazione del corso
+assegna(presentazione_del_corso, 1, 5, 1).
+assegna(presentazione_del_corso, 1, 5, 2).
+                                        
+
 #show assegna/4.
