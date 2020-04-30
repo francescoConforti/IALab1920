@@ -33,7 +33,7 @@ insegnamento(fondamenti_di_ICT_e_paradigmi_di_programmazione, pozzato, 14).
 insegnamento(linguaggi_di_markup, gena, 20).
 insegnamento(la_gestione_della_qualita, tomatis, 10).
 insegnamento(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, micalizio, 20).
-insegnamento(progettazione_grafica_e_design_di_interface, terranova, 10).
+insegnamento(progettazione_grafica_e_design_di_interfacce, terranova, 10).
 insegnamento(progettazione_di_basi_di_dati, mazzei, 20).
 insegnamento(strumenti_e_metodi_di_interazione_nei_social_media, giordani, 14).
 insegnamento(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, zanchetta, 14).
@@ -99,6 +99,68 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 %le prime due ore di lezione sono dedicate alla presentazione del corso
 assegna(presentazione_del_corso, 1, 5, 1).
 assegna(presentazione_del_corso, 1, 5, 2).
+
+% propedeuticità fondamenti_di_ICT_e_paradigmi_di_programmazione -> ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web
+:- assegna(fondamenti_di_ICT_e_paradigmi_di_programmazione, Settimana1, _, _), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(fondamenti_di_ICT_e_paradigmi_di_programmazione, Settimana, Giorno1, _), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(fondamenti_di_ICT_e_paradigmi_di_programmazione, Settimana, Giorno, Ora1), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web -> progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I
+:- assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana1, _, _), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno1, _), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno, Ora1), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I -> progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II
+:- assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana1, _, _), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana, Giorno1, _), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, Settimana, Giorno, Ora1), assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità progettazione_di_basi_di_dati -> tecnologie_server_side_per_il_web
+:- assegna(progettazione_di_basi_di_dati, Settimana1, _, _), assegna(tecnologie_server_side_per_il_web, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(progettazione_di_basi_di_dati, Settimana, Giorno1, _), assegna(tecnologie_server_side_per_il_web, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(progettazione_di_basi_di_dati, Settimana, Giorno, Ora1), assegna(tecnologie_server_side_per_il_web, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità linguaggi_di_markup -> ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web
+:- assegna(linguaggi_di_markup, Settimana1, _, _), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(linguaggi_di_markup, Settimana, Giorno1, _), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(linguaggi_di_markup, Settimana, Giorno, Ora1), assegna(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità project_management -> marketing_digitale
+:- assegna(project_management, Settimana1, _, _), assegna(marketing_digitale, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(project_management, Settimana, Giorno1, _), assegna(marketing_digitale, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(project_management, Settimana, Giorno, Ora1), assegna(marketing_digitale, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità marketing_digitale -> tecniche_e_strumenti_di_marketing_digitale
+:- assegna(marketing_digitale, Settimana1, _, _), assegna(tecniche_e_strumenti_di_marketing_digitale, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(marketing_digitale, Settimana, Giorno1, _), assegna(tecniche_e_strumenti_di_marketing_digitale, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(marketing_digitale, Settimana, Giorno, Ora1), assegna(tecniche_e_strumenti_di_marketing_digitale, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità project_management -> strumenti_e_metodi_di_interazione_nei_social_media
+:- assegna(project_management, Settimana1, _, _), assegna(strumenti_e_metodi_di_interazione_nei_social_media, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(project_management, Settimana, Giorno1, _), assegna(strumenti_e_metodi_di_interazione_nei_social_media, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(project_management, Settimana, Giorno, Ora1), assegna(strumenti_e_metodi_di_interazione_nei_social_media, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità project_management -> progettazione_grafica_e_design_di_interfacce
+:- assegna(project_management, Settimana1, _, _), assegna(progettazione_grafica_e_design_di_interfacce, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(project_management, Settimana, Giorno1, _), assegna(progettazione_grafica_e_design_di_interfacce, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(project_management, Settimana, Giorno, Ora1), assegna(progettazione_grafica_e_design_di_interfacce, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità acquisizione_ed_elaborazione_di_immagini_statiche_grafica -> elementi_di_fotografia_digitale
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana1, _, _), assegna(elementi_di_fotografia_digitale, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana, Giorno1, _), assegna(elementi_di_fotografia_digitale, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana, Giorno, Ora1), assegna(elementi_di_fotografia_digitale, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità elementi_di_fotografia_digitale -> acquisizione_ed_elaborazione_di_sequenze_di_immagini_digitali
+:- assegna(elementi_di_fotografia_digitale, Settimana1, _, _), assegna(acquisizione_ed_elaborazione_di_sequenze_di_immagini_digitali, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(elementi_di_fotografia_digitale, Settimana, Giorno1, _), assegna(acquisizione_ed_elaborazione_di_sequenze_di_immagini_digitali, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(elementi_di_fotografia_digitale, Settimana, Giorno, Ora1), assegna(acquisizione_ed_elaborazione_di_sequenze_di_immagini_digitali, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+%propedeuticità acquisizione_ed_elaborazione_di_immagini_statiche_grafica -> grafica_3d
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana1, _, _), assegna(grafica_3d, Settimana2, _, _), Settimana1 > Settimana2.
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana, Giorno1, _), assegna(grafica_3d, Settimana, Giorno2, _), Giorno1>Giorno2.
+:- assegna(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, Settimana, Giorno, Ora1), assegna(grafica_3d, Settimana, Giorno, Ora2), Ora1>Ora2.
+
+
                                         
 
 #show assegna/4.
