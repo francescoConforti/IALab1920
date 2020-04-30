@@ -61,7 +61,7 @@ corso(C) :- insegnamento(C, _, _).
 %                                   SETTIMANE
 % ***********************************************************************************
 
-settimane(24).
+settimane(3).
 settimana(1..S) :- settimane(S).
 giorni(6).
 giorno(1..G) :- giorni(G). % lunedi...sabato
@@ -80,11 +80,20 @@ N { haOre(6, S, O) : settimana(S), O = (4;5) } N :- settimane(N).  % sabato ha 4
 
 % assegna(Corso, Settimana, Giorno, Ora)
 % assegno a ogni corso il numero di ore che gli spetta
-OreMax { assegna(Corso, S, G, O) : haOre(G, S, OraDelGiorno), ora(O), O <= OraDelGiorno } OreMax :- insegnamento(Corso, _, OreMax).
+OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDelGiorno } OreMax :- insegnamento(Corso, _, OreMax).
 % due corsi non possono essere la stessa ora
 :- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), Corso1 != Corso2.
 % un docente non può fare due corsi nella stessa ora
 :- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), insegnamento(Corso1, Docente, _), insegnamento(Corso2, Docente, _), Corso1 != Corso2.
 
+% **************************************************************************************
+%                                   VINCOLI RIGIDI
+% **************************************************************************************
+
+% a ciascun insegnamento vengono assegnate minimo 2 e massimo 4 ore nello stesso giorno
+2 { assegna(Corso, S, G, O) : ora(O), haOre(G, S, OreDelGiorno), O <= OreDelGiorno } 4 :- assegna(Corso, S, G, _).
+
+% l’insegnamento “Project Management” deve concludersi non oltre la prima settimana full-time
+:- assegna(project_management, S, G, O), S>7.
 
 #show assegna/4.
