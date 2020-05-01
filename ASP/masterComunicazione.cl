@@ -100,6 +100,11 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 assegna(presentazione_del_corso, 1, 5, 1).
 assegna(presentazione_del_corso, 1, 5, 2).
 
+2 {recupero(S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O < OreDelGiorno }.
+assegna(recupero, S, G, O) :- recupero(S, G, O).
+assegna(recupero, S, G, O+1) :- recupero(S, G, O).
+
+
 % propedeuticità
 % propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
 propedeutico(fondamenti_di_ICT_e_paradigmi_di_programmazione, ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web).
