@@ -90,6 +90,9 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 %                                   VINCOLI RIGIDI
 % **************************************************************************************
 
+% lo stesso docente non può svolgere più di 4 ore di lezione in un giorno
+{ assegna(Corso, S, G, O) : insegnamento(Corso, D, _), ora(O), O <= OreDelGiorno} 4 :- haOre(G, S, OreDelGiorno), docente(D).
+
 % a ciascun insegnamento vengono assegnate minimo 2 e massimo 4 ore nello stesso giorno
 2 { assegna(Corso, S, G, O) : ora(O), haOre(G, S, OreDelGiorno), O <= OreDelGiorno } 4 :- assegna(Corso, S, G, _).
 
