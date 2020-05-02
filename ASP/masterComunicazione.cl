@@ -127,6 +127,8 @@ propedeutico(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, grafica_
 :- assegna(Corso1, Settimana1, _, _), assegna(Corso2, Settimana2, _, _), propedeutico(Corso1, Corso2), Settimana1 > Settimana2.
 :- assegna(Corso1, Settimana, Giorno1, _), assegna(Corso2, Settimana, Giorno2, _), propedeutico(Corso1, Corso2), Giorno1>Giorno2.
 :- assegna(Corso1, Settimana, Giorno, Ora1), assegna(Corso2, Settimana, Giorno, Ora2), propedeutico(Corso1, Corso2), Ora1>Ora2.
-                                        
 
+
+%la prima lezione di accessibilita_e_usabilita_nella_progettazione_multimediale deve essere collocata prima dell'ultima lezione di linguaggi_di_markup
+:- assegna(accessibilita_e_usabilita_nella_progettazione_multimediale, S, G, O), assegna(linguaggi_di_markup, S1, G1, O1), S1>=S, G1>=G, O1>O.
 #show assegna/4.
