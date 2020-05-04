@@ -83,18 +83,18 @@ N { haOre(6, S, O) : settimana(S), O = (4;5) } N :- settimane(N).  % sabato ha 4
 OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDelGiorno } OreMax :- insegnamento(Corso, _, OreMax).
 % due corsi non possono essere la stessa ora
 :- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), Corso1 != Corso2.
-% un docente non può fare due corsi nella stessa ora
-:- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), insegnamento(Corso1, Docente, _), insegnamento(Corso2, Docente, _), Corso1 != Corso2.
+% un docente non può fare due corsi nella stessa ora  [inutile perchè c'è un'aula sola]
+% :- assegna(Corso1, S, G, O), assegna(Corso2, S, G, O), insegnamento(Corso1, Docente, _), insegnamento(Corso2, Docente, _), Corso1 != Corso2.
 
 % **************************************************************************************
 %                                   VINCOLI RIGIDI
 % **************************************************************************************
 
-% lo stesso docente non può svolgere più di 4 ore di lezione in un giorno
-{ assegna(Corso, S, G, O) : insegnamento(Corso, D, _), ora(O), O <= OreDelGiorno} 4 :- haOre(G, S, OreDelGiorno), docente(D).
+% % lo stesso docente non può svolgere più di 4 ore di lezione in un giorno
+:- not { assegna(Corso, S, G, O) : insegnamento(Corso, D, _), ora(O), O <= OreDelGiorno} 4, haOre(G, S, OreDelGiorno), docente(D).
 
 % a ciascun insegnamento vengono assegnate minimo 2 e massimo 4 ore nello stesso giorno
-2 { assegna(Corso, S, G, O) : ora(O), haOre(G, S, OreDelGiorno), O <= OreDelGiorno } 4 :- assegna(Corso, S, G, _).
+:- not 2 { assegna(Corso, S, G, O) : ora(O), haOre(G, S, OreDelGiorno), O <= OreDelGiorno } 4, assegna(Corso, S, G, _).
 
 % l’insegnamento “Project Management” deve concludersi non oltre la prima settimana full-time
 :- assegna(project_management, S, G, O), S>7.
@@ -103,10 +103,11 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 assegna(presentazione_del_corso, 1, 5, 1).
 assegna(presentazione_del_corso, 1, 5, 2).
 
+% il calendario deve prevedere almeno 2 blocchi liberi di 2 ore ciascuno per eventuali recuperi di lezioni annullate o rinviate
 2 {recupero(S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O < OreDelGiorno }.
+:- recupero(S, G, O), recupero(S, G, O+1).
 assegna(recupero, S, G, O) :- recupero(S, G, O).
 assegna(recupero, S, G, O+1) :- recupero(S, G, O).
-
 
 % propedeuticità
 % propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
@@ -128,7 +129,18 @@ propedeutico(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, grafica_
 :- assegna(Corso1, Settimana, Giorno1, _), assegna(Corso2, Settimana, Giorno2, _), propedeutico(Corso1, Corso2), Giorno1>Giorno2.
 :- assegna(Corso1, Settimana, Giorno, Ora1), assegna(Corso2, Settimana, Giorno, Ora2), propedeutico(Corso1, Corso2), Ora1>Ora2.
 
-
 %la prima lezione di accessibilita_e_usabilita_nella_progettazione_multimediale deve essere collocata prima dell'ultima lezione di linguaggi_di_markup
 :- assegna(accessibilita_e_usabilita_nella_progettazione_multimediale, S, G, O), assegna(linguaggi_di_markup, S1, G1, O1), S1>=S, G1>=G, O1>O.
+
+% ******************************************************************************
+%                         VINCOLI AUSPICABILI
+% ******************************************************************************
+
+% le lezioni dei vari insegnamenti devono rispettare le seguenti propedeuticità, in particolare la prima lezione dell’insegnamento 
+% della colonna di destra deve essere successiva alle prime 4 ore di lezione del corrispondente insegnamento della colonna di sinistra
+% propedeutico2(fondamenti_di_ICT_e_paradigmi_di_programmazione, progettazione_di_basi_di_dati).
+% propedeutico2(tecniche_e_strumenti_di_marketing_digitale, introduzione_al_social_media_management).
+% propedeutico2(comunicazione_pubblicitaria_e_comunicazione_pubblica, la_gestione_delle_risorse_umane).
+% propedeutico2(tecnologie_server_side_per_il_web, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I).
+
 #show assegna/4.
