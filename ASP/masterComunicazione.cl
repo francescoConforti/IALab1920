@@ -109,8 +109,8 @@ assegna(presentazione_del_corso, 1, 5, 2).
 assegna(recupero, S, G, O) :- recupero(S, G, O).
 assegna(recupero, S, G, O+1) :- recupero(S, G, O).
 
-% propedeuticità
-% propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
+propedeuticità
+propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
 propedeutico(fondamenti_di_ICT_e_paradigmi_di_programmazione, ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web).
 propedeutico(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I).
 propedeutico(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II).
@@ -142,5 +142,17 @@ propedeutico(acquisizione_ed_elaborazione_di_immagini_statiche_grafica, grafica_
 % propedeutico2(tecniche_e_strumenti_di_marketing_digitale, introduzione_al_social_media_management).
 % propedeutico2(comunicazione_pubblicitaria_e_comunicazione_pubblica, la_gestione_delle_risorse_umane).
 % propedeutico2(tecnologie_server_side_per_il_web, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I).
+
+% la distanza fra l’ultima lezione di “Progettazione e sviluppo di applicazioni web su dispositivi mobile I” e
+% la prima di “Progettazione e sviluppo di applicazioni web su dispositivi mobile II” non deve superare le due settimane
+vincoloProgrammazioneMobile :- assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, S1, _, _),
+                               assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, S2, _, _),
+                               S2 < S1 +2.
+
+vincoloProgrammazioneMobile :- assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, S1, G1, _),
+                               assegna(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II, S2, G2, _),
+                               S2 <= S1 +2, G2 <= G1.
+
+:- not vincoloProgrammazioneMobile.
 
 #show assegna/4.
