@@ -90,7 +90,7 @@ OreMax { assegna(Corso, S, G, O) : haOre(G, S, OreDelGiorno), ora(O), O <= OreDe
 %                                   VINCOLI RIGIDI
 % **************************************************************************************
 
-% % lo stesso docente non può svolgere più di 4 ore di lezione in un giorno
+% lo stesso docente non può svolgere più di 4 ore di lezione in un giorno
 :- not { assegna(Corso, S, G, O) : insegnamento(Corso, D, _), ora(O), O <= OreDelGiorno} 4, haOre(G, S, OreDelGiorno), docente(D).
 
 % a ciascun insegnamento vengono assegnate minimo 2 e massimo 4 ore nello stesso giorno
@@ -109,8 +109,8 @@ assegna(presentazione_del_corso, 1, 5, 2).
 assegna(recupero, S, G, O) :- recupero(S, G, O).
 assegna(recupero, S, G, O+1) :- recupero(S, G, O).
 
-propedeuticità
-propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
+% propedeuticità
+% propedeutico(InsegnamentoPrecedente, InsegnamentoSuccessivo)
 propedeutico(fondamenti_di_ICT_e_paradigmi_di_programmazione, ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web).
 propedeutico(ambienti_di_sviluppo_e_linguaggi_client_side_per_il_web, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I).
 propedeutico(progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_I, progettazione_e_sviluppo_di_applicazioni_web_su_dispositivi_mobile_II).
