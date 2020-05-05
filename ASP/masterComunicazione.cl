@@ -155,4 +155,11 @@ vincoloProgrammazioneMobile :- assegna(progettazione_e_sviluppo_di_applicazioni_
 
 :- not vincoloProgrammazioneMobile.
 
+% la distanza tra la prima e l’ultima lezione di ciascun insegnamento non deve superare le 6 settimane
+:-assegna(Corso, S, G, O), assegna(Corso, S1, G1, O1), |S1-S|>6 .
+
+%• la prima lezione degli insegnamenti “Crossmedia: articolazione delle scritture multimediali” e “Introduzione al social media management” devono essere collocate nella seconda settimana full-time
+:- assegna(crossmedia_articolazione_delle_scritture_multimediali, S, G, O), S<16.
+:- assegna(introduzione_al_social_media_management, S, G, O), S<16.
+
 #show assegna/4.
