@@ -4,19 +4,19 @@
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
 ;assegna alle righe in cui non sono presenti navi, il contenuto water
-(defrule row-empty (declare salience 50)
-	(k-per-row (row ?x) (num 0))
-	(cell (x ?x) (y ?y))
+(defrule row-empty 
+	(k-per-row  (num 0) (row ?x))
 	=>
-	(assert(k-cell (x ?x) (y ?y) (content water))) 
+	(loop-for-count (?cnt1 0 10) do
+		(assert (k-cell (x ?x) (y ?cnt1) (content water))))
 )
 
 ;assegna alle colonne in cui non sono presenti navi, il contenuto water
 (defrule column-empty (declare salience 50)
 	(k-per-col (col ?y) (num 0))
-	(cell (x ?x) (y ?y))
 	=>
-	(assert(k-cell (x ?x) (y ?y) (content water)))
+	(loop-for-count (?cnt1 0 10) do
+		(assert (k-cell (x ?cnt1) (y ?y) (content water))))
 )
 
 (defrule empty-around-sub (declare salience 50)
