@@ -4,7 +4,7 @@
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
 ;assegna alle righe in cui non sono presenti navi, il contenuto water
-(defrule row-empty 
+(defrule row-empty (declare salience 50)
 	(k-per-row  (num 0) (row ?x))
 	=>
 	(loop-for-count (?cnt1 0 10) do
