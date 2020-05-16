@@ -3,20 +3,27 @@
 ;  ---------------------------------------------
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
-;assegna alle righe in cui non sono presenti navi, il contenuto water
-(defrule row-empty (declare (salience 50))
-	(k-per-row  (num 0) (row ?x))
-	=>
-	(loop-for-count (?cnt1 0 9) do
-		(assert (k-cell (x ?x) (y ?cnt1) (content water))))
+(deffunction water-if-empty (?x ?y)
+  (if (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y)))) then
+   (assert (k-cell (x ?x) (y ?y) (content water))))
 )
 
-;assegna alle colonne in cui non sono presenti navi, il contenuto water
-(defrule column-empty (declare (salience 50))
-	(k-per-col (col ?y) (num 0))
+; Se abbiamo trovato tutte le navi in una riga assegna acqua alle caselle restanti
+(defrule row-full (declare (salience 50))
+	(k-per-row  (num ?n) (row ?x))
+  (test (eq ?n (length$ (find-all-facts ((?k k-cell)) (and (eq ?k:x ?x) (neq ?k:content water))))))
 	=>
-	(loop-for-count (?cnt1 0 9) do
-		(assert (k-cell (x ?cnt1) (y ?y) (content water))))
+	(loop-for-count (?cnt 0 9) do
+		(water-if-empty ?x ?cnt))
+)
+
+; Se abbiamo trovato tutte le navi in una colonna assegna acqua alle caselle restanti
+(defrule column-full (declare (salience 50))
+	(k-per-col  (num ?n) (col ?y))
+  (test (eq ?n (length$ (find-all-facts ((?k k-cell)) (and (eq ?k:y ?y) (neq ?k:content water))))))
+	=>
+	(loop-for-count (?cnt 0 9) do
+		(water-if-empty ?cnt ?y))
 )
 
 (defrule empty-around-sub (declare (salience 50))
