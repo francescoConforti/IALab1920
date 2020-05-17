@@ -3,6 +3,10 @@
 ;  ---------------------------------------------
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
+;  ---------------------------------------------
+;  -------------- Fatti iniziali ---------------
+;  ---------------------------------------------
+
 (deffacts init-agent
   (affondati sottomarini 0) ; 1 casella, max 4
   (affondati cacciatorpedinieri 0)  ; 2 caselle, max 3
@@ -10,24 +14,76 @@
   (affondati corazzate 0) ; 4 caselle, max 1
 )
 
+;  ---------------------------------------------
+;  ------------- Funzioni ----------------------
+;  ---------------------------------------------
+
 (deffunction water-if-empty (?x ?y)
   (if (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y)))) then
    (assert (k-cell (x ?x) (y ?y) (content water))))
 )
 
+;  ---------------------------------------------------------
+;  --- Regole per la pulizia e la gestione dell'ambiente ---
+;  ------------------ Salience 70 --------------------------
+;  ---------------------------------------------------------
+
+(defrule cleanX (declare (salience 70))
+  ?k <- (k-cell (x -1|10))
+  =>
+  (retract ?k)
+)
+
+(defrule cleanY (declare (salience 70))
+  ?k <- (k-cell (y -1|10))
+  =>
+  (retract ?k)
+)
+
+; è fondamentale che questa regola abbia salience > reduce-k-new-cell
+(defrule reduce-row (declare (salience 70))
+  ?f <- (reduce-row ?x)
+  ?row <- (k-per-row (num ?n) (row ?x))
+  =>
+  (retract ?f)
+  (bind ?newnum (- ?n 1))
+  (modify ?row (num ?newnum))
+)
+
+; è fondamentale che questa regola abbia salience > reduce-k-new-cell
+(defrule reduce-col (declare (salience 70))
+  ?f <- (reduce-col ?y)
+  ?row <- (k-per-col (num ?n) (row ?y))
+  =>
+  (retract ?f)
+  (bind ?newnum (- ?n 1))
+  (modify ?col (num ?newnum))
+)
+
+;  ---------------------------------------------------------
+;  --- Regole per la gestione delle caselle note -----------
+;  -------- e l'inferenza delle caselle vuote --------------
+;  ------------------ Salience 50 --------------------------
+;  ---------------------------------------------------------
+
+(defrule reduce-k-new-cell (declare (salience 50))
+  (k-cell (x ?x) (y ?y) (content ~water))
+  =>
+  (assert (reduce-row ?x))
+  (assert (reduce-col ?y))
+)
+
 ; Se abbiamo trovato tutte le navi in una riga assegna acqua alle caselle restanti
-(defrule row-full (declare (salience 50))
-	(k-per-row  (num ?n) (row ?x))
-  (test (eq ?n (length$ (find-all-facts ((?k k-cell)) (and (eq ?k:x ?x) (neq ?k:content water))))))
+(defrule row-empty (declare (salience 50))
+	(k-per-row  (num 0) (row ?x))
 	=>
 	(loop-for-count (?cnt 0 9) do
 		(water-if-empty ?x ?cnt))
 )
 
 ; Se abbiamo trovato tutte le navi in una colonna assegna acqua alle caselle restanti
-(defrule column-full (declare (salience 50))
-	(k-per-col  (num ?n) (col ?y))
-  (test (eq ?n (length$ (find-all-facts ((?k k-cell)) (and (eq ?k:y ?y) (neq ?k:content water))))))
+(defrule column-empty (declare (salience 50))
+	(k-per-col  (num 0) (col ?y))
 	=>
 	(loop-for-count (?cnt 0 9) do
 		(water-if-empty ?cnt ?y))
