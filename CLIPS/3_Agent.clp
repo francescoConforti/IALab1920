@@ -3,6 +3,13 @@
 ;  ---------------------------------------------
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
+(deffacts init-agent
+  (affondati sottomarini 0) ; 1 casella, max 4
+  (affondati cacciatorpedinieri 0)  ; 2 caselle, max 3
+  (affondati incrociatori 0)  ; 3 caselle, max 2
+  (affondati corazzate 0) ; 4 caselle, max 1
+)
+
 (deffunction water-if-empty (?x ?y)
   (if (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y)))) then
    (assert (k-cell (x ?x) (y ?y) (content water))))
