@@ -19,7 +19,8 @@
 ;  ---------------------------------------------
 
 (deffunction water-if-empty (?x ?y)
-  (if (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y)))) then
+  (if (and (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y))))
+           (not (any-factp ((?ex exec)) (and (eq ?ex:action guess) (eq ?ex:x ?x) (eq ?ex:y ?y))))) then
    (assert (k-cell (x ?x) (y ?y) (content water))))
 )
 
@@ -53,7 +54,7 @@
 ; è fondamentale che questa regola abbia salience > reduce-k-new-cell
 (defrule reduce-col (declare (salience 70))
   ?f <- (reduce-col ?y)
-  ?row <- (k-per-col (num ?n) (row ?y))
+  ?col <- (k-per-col (num ?n) (col ?y))
   =>
   (retract ?f)
   (bind ?newnum (- ?n 1))
@@ -73,9 +74,19 @@
   (assert (reduce-col ?y))
 )
 
+(defrule reduce-k-guess (declare (salience 50))
+  (exec (action guess) (x ?x) (y ?y))
+  (not (k-cell (x ?x) (y ?y)))
+  =>
+  (assert (reduce-row ?x))
+  (assert (reduce-col ?y))
+)
+
+; TODO: aumenta su unguess
+
 ; Se abbiamo trovato tutte le navi in una riga assegna acqua alle caselle restanti
 (defrule row-empty (declare (salience 50))
-	(k-per-row  (num 0) (row ?x))
+	(k-per-row (num 0) (row ?x))
 	=>
 	(loop-for-count (?cnt 0 9) do
 		(water-if-empty ?x ?cnt))
@@ -83,7 +94,7 @@
 
 ; Se abbiamo trovato tutte le navi in una colonna assegna acqua alle caselle restanti
 (defrule column-empty (declare (salience 50))
-	(k-per-col  (num 0) (col ?y))
+	(k-per-col (num 0) (col ?y))
 	=>
 	(loop-for-count (?cnt 0 9) do
 		(water-if-empty ?cnt ?y))
@@ -189,3 +200,75 @@
   =>
   (assert (k-cell (x ?x) (y 8) (content water)))
 )
+
+;  ---------------------------------------------------------
+;  --- Regole per l'inferenza delle caselle occupate -------
+;  -------------- usando l'azione guess --------------------
+;  ------------------ Salience 30 --------------------------
+;  ---------------------------------------------------------
+
+; conosco già la cella ma la guess porta punti
+(defrule guess-known-cell (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content ~water))
+  (status (step ?s)(currently running))
+	(not (exec  (action guess) (x ?x) (y ?y)))
+=>
+	(assert (exec (step ?s) (action guess) (x ?x) (y ?y)))
+  (pop-focus)
+)
+
+; top si trova subito sopra il bordo, quindi è una nave da 2
+(defrule guess-under-top-1-border (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content top))
+  (test (> (+ ?x 2) 9))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (+ ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; top si trova subito sopra una casella con acqua, quindi è una nave da 2
+(defrule guess-under-top-1-water (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content top))
+  (k-cell (x ?xwater) (y ?y) (content water))
+  (test (eq (+ ?x 2) ?xwater))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (+ ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; le navi da 3 e 4 sono già state affondate, quindi questa è da 2
+(defrule guess-under-top-1-biggest-boat (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content top))
+  (affondati incrociatori 2)
+  (affondati corazzate 1)
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 2)) (y ?y) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (+ ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; TODO caso normale: guess sotto top senza altre info
