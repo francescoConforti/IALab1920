@@ -102,11 +102,14 @@
 
 (defrule empty-around-sub (declare (salience 50))
   (k-cell (x ?x) (y ?y) (content sub))
+  ?affondati <- (affondati sottomarini ?n)
   =>
   (assert (k-cell (x (+ ?x 1)) (y ?y) (content water)))
   (assert (k-cell (x (- ?x 1)) (y ?y) (content water)))
   (assert (k-cell (x ?x) (y (+ ?y 1)) (content water)))
   (assert (k-cell (x ?x) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati sottomarini (+ ?n 1)))
 )
 
 (defrule empty-around-left (declare (salience 50))
@@ -271,4 +274,228 @@
   (pop-focus)
 )
 
-; TODO caso normale: guess sotto top senza altre info
+; caso normale: guess sotto top senza altre info
+(defrule guess-under-top-1-default (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content top))
+  (test (<= (+ ?x 2) 9))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (exec (step ?s) (action guess) (x (+ ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; bot si trova subito sopra il bordo, quindi è una nave da 2
+(defrule guess-over-bot-1-border (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content bot))
+  (test (< (- ?x 2) 0))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (- ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; bot si trova subito sotto una casella con acqua, quindi è una nave da 2
+(defrule guess-over-bot-1-water (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content bot))
+  (k-cell (x ?xwater) (y ?y) (content water))
+  (test (eq (- ?x 2) ?xwater))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (- ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; le navi da 3 e 4 sono già state affondate, quindi questa è da 2
+(defrule guess-over-bot-1-biggest-boat (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content bot))
+  (affondati incrociatori 2)
+  (affondati corazzate 1)
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 2)) (y ?y) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x (- ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; caso normale: guess sopra bot senza altre info
+(defrule guess-over-bot-1-default (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content bot))
+  (test (>= (- ?x 2) 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (exec (step ?s) (action guess) (x (- ?x 1)) (y ?y)))
+  (pop-focus)
+)
+
+; left si trova subito affianco al bordo, quindi è una nave da 2
+(defrule guess-next-to-left-1-border (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content left))
+  (test (> (+ ?y 2) 9))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (+ ?y 1))))
+  (pop-focus)
+)
+
+; left si trova subito a fainco di una casella con acqua, quindi è una nave da 2
+(defrule guess-next-to-left-1-water (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content left))
+  (k-cell (x ?x) (y ?ywater) (content water))
+  (test (eq (+ ?y 2) ?ywater))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (+ ?y 1))))
+  (pop-focus)
+)
+
+; le navi da 3 e 4 sono già state affondate, quindi questa è da 2
+(defrule guess-next-to-left-1-biggest-boat (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content left))
+  (affondati incrociatori 2)
+  (affondati corazzate 1)
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x ?x) (y (+ ?y 2)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (+ ?y 1))))
+  (pop-focus)
+)
+
+; caso normale: guess affianco left senza altre info
+(defrule guess-next-to-left-1-default (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content left))
+  (test (<= (+ ?y 2) 9))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (+ ?y 1))))
+  (pop-focus)
+)
+
+; right si trova subito affianco al bordo, quindi è una nave da 2
+(defrule guess-next-to-right-1-border (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content right))
+  (test (< (- ?y 2) 0))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (- ?y 1))))
+  (pop-focus)
+)
+
+; right si trova subito a fainco di una casella con acqua, quindi è una nave da 2
+(defrule guess-next-to-right-1-water (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content right))
+  (k-cell (x ?x) (y ?ywater) (content water))
+  (test (eq (- ?y 2) ?ywater))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (- ?y 1))))
+  (pop-focus)
+)
+
+; le navi da 3 e 4 sono già state affondate, quindi questa è da 2
+(defrule guess-next-to-right-1-biggest-boat (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content right))
+  (affondati incrociatori 2)
+  (affondati corazzate 1)
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x ?x) (y (- ?y 2)) (content water)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (- ?y 1))))
+  (pop-focus)
+)
+
+; caso normale: guess affianco right senza altre info
+(defrule guess-next-to-right-1-default (declare (salience 30))
+  (k-cell (x ?x) (y ?y) (content right))
+  (test (>= (- ?y 2) 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
+  (status (step ?s)(currently running))
+	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+  =>
+  ; tengo anche traccia dell'acqua intorno alla nave
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y (- ?y 1))))
+  (pop-focus)
+)
