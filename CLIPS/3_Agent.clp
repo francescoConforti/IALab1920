@@ -3,6 +3,12 @@
 ;  ---------------------------------------------
 (defmodule AGENT (import MAIN ?ALL) (import ENV ?ALL) (export ?ALL))
 
+(deftemplate CONFLICT
+  (slot x)
+  (slot y)
+  (slot reason (type STRING))
+)
+
 ;  ---------------------------------------------
 ;  -------------- Fatti iniziali ---------------
 ;  ---------------------------------------------
@@ -22,6 +28,32 @@
   (if (and (not (any-factp ((?kcell k-cell)) (and (eq ?kcell:x ?x) (eq ?kcell:y ?y))))
            (not (any-factp ((?ex exec)) (and (eq ?ex:action guess) (eq ?ex:x ?x) (eq ?ex:y ?y))))) then
    (assert (k-cell (x ?x) (y ?y) (content water))))
+)
+
+;  ---------------------------------------------------------
+;  -------- Regole di rilevamento dei conflitti ------------
+;  ------------------ Salience massima  --------------------
+;  ---------------------------------------------------------
+
+(defrule conflict-kcell (declare (salience 100))
+  (k-cell (x ?x) (y ?y) (content ?c1))
+  (k-cell (x ?x) (y ?y) (content ~?c1))
+  =>
+  (assert (CONFLICT (x ?x) (y ?y) (reason "la k-cell contiene due parti di nave diverse")))
+)
+
+(defrule conflict-kcell-water (declare (salience 100))
+  (k-cell (x ?x) (y ?y) (content water))
+  (k-cell (x ?x) (y ?y) (content ~water))
+  =>
+  (assert (CONFLICT (x ?x) (y ?y) (reason "la k-cell contiene sia acqua che una parte di nave")))
+)
+
+(defrule conflict-guess-fire (declare (salience 100))
+  (exec (action guess) (x ?x) (y ?y))
+  (exec (action fire) (x ?x) (y ?y))
+  =>
+  (assert (CONFLICT (x ?x) (y ?y) (reason "guess e fire sulla stessa casella")))
 )
 
 ;  ---------------------------------------------------------
