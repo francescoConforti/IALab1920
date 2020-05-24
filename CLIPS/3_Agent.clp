@@ -204,6 +204,46 @@
   (assert (k-cell (x ?x) (y 8) (content water)))
 )
 
+; le regole seguenti servono ad aggiungere info sull'acqua in situazioni che possono
+; verificarsi in seguito al processo di guess / fire ma sono impossibili o
+; difficili da aggiungere direttamente al momento della action
+
+(defrule empty-above-middle-after-middle (declare (salience 50))
+  (k-cell (x ?x) (y ?y) (content middle))
+  (k-cell (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y) (content middle))
+  =>
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 2)) (y ?y) (content water)))
+)
+
+(defrule empty-under-middle-after-middle (declare (salience 50))
+  (k-cell (x ?x) (y ?y) (content middle))
+  (k-cell (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y) (content middle))
+  =>
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (+ ?x 2)) (y ?y) (content water)))
+)
+
+(defrule empty-left-of-middle-after-middle (declare (salience 50))
+  (k-cell (x ?x) (y ?y) (content middle))
+  (k-cell (x ?x) (y ?y1 & :(= (+ ?y 1) ?y1)) (content middle))
+  =>
+  (assert (k-cell (x (+ ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
+  (assert (k-cell (x ?x) (y (- ?y 2)) (content water)))
+)
+
+(defrule empty-right-of-middle-after-middle (declare (salience 50))
+  (k-cell (x ?x) (y ?y) (content middle))
+  (k-cell (x ?x) (y ?y1 & :(= (- ?y 1) ?y1)) (content middle))
+  =>
+  (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
+  (assert (k-cell (x ?x) (y (+ ?y 2)) (content water)))
+)
+
 ;  ---------------------------------------------------------
 ;  --- Regole per l'inferenza delle caselle occupate -------
 ;  -------------- usando l'azione guess --------------------
