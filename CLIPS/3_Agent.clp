@@ -983,3 +983,416 @@
   (assert (exec (step ?s) (action guess) (x ?x) (y (- ?y 1))))
   (pop-focus)
 )
+
+;asserisce che una nave da 2 è affondata facendo una visita bottom up 
+(defrule verifica-cacciatorpedinieri-affondati-bottom-up
+  (k-cell (x ?x1) (y ?y) (content water))
+  
+  (or (exec (action guess) ((x ?x2&:(= ?x2 (- ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y) (content ~water)))
+  
+  (or (exec (action guess) (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y) (content ~water)))
+  
+  (or (k-cell (x ?x4&:(= ?x4 (- ?x1 3))) (y ?y))
+      (test (< (- ?x1 3) 0)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  (test (< ?n 4))
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+)
+
+;asserisce che una nave da 2 è affondata facendo una visita top down
+(defrule verifica-cacciatorpedinieri-affondati-top-down
+  (k-cell (x ?x1) (y ?y) (content water))
+
+  (or (exec (action guess) ((x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y) (content ~water)))
+  
+  (or (exec (action guess) (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y) (content ~water)))
+  
+  (or (k-cell (x ?x4&:(= ?x4 (+ ?x1 3))) (y ?y))
+      (test (> (+ ?x1 3) 9)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  (test (< ?n 4))
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+)
+
+;asserisce che una nave da 2 è affondata facendo una visita left-to-right
+(defrule verifica-cacciatorpedinieri-affondati-left-to-right
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))))
+      (test (> (+ ?y1 3) 9)))
+
+  (not (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  (test (< ?n 4))
+  =>
+  (assert (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+)
+
+;asserisce che una nave da 2 è affondata facendo una visita right-to-left 
+(defrule verifica-cacciatorpedinieri-affondati-right-to-left
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))))
+      (test (< (- ?y1 3) 0)))
+
+  (not (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati cacciatorpedinieri ?n)
+  (test (< ?n 4))
+  =>
+  (assert (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati cacciatorpedinieri (+ ?n 1)))
+)
+
+;asserisce che una nave da 3 è affondata facendo una visita bottom up 
+(defrule verifica-incrociatori-affondati-bottom-up
+  (k-cell (x ?x1) (y ?y) (content water))
+
+  (or (exec (action guess) (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x4&:(= ?x4 (- ?x1 3))) (y ?y))
+      (k-cell (x ?x4&:(= ?x4 (- ?x1 3))) (y ?y) (content ~water)))
+
+  (or (k-cell (x ?x5&:(= ?x5 (- ?x1 4))) (y ?y))
+      (test (< (- ?x1 4) 0)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3 ?x4) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati incrociatori ?n)
+  (test (< ?n 3))
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3 ?x4) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati incrociatori (+ ?n 1)))
+)
+
+;asserisce che una nave da 3 è affondata facendo una visita top down 
+(defrule verifica-incrociatori-affondati-top-down
+  (k-cell (x ?x1) (y ?y) (content water))
+
+  (or (exec (action guess) (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x4&:(= ?x4 (+ ?x1 3))) (y ?y))
+      (k-cell (x ?x4&:(= ?x4 (+ ?x1 3))) (y ?y) (content ~water)))
+
+  (or (k-cell (x ?x5&:(= ?x5 (+ ?x1 4))) (y ?y))
+      (test (< (+ ?x1 4) 0)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3 ?x4) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati incrociatori ?n)
+  (test (< ?n 3))
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3 ?x4) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati incrociatori (+ ?n 1)))
+)
+
+;asserisce che una nave da 3 è affondata facendo una visita left-to-right
+(defrule verifica-incrociatori-affondati-left-to-right
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))))
+      (k-cell (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y5&:(= ?y5 (+ ?y1 4))))
+      (test (> (+ ?y1 4) 9)))
+
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4) (hit 1)))
+  
+  ?affondati <- (affondati incrociatori ?n)
+  (test (< ?n 3))
+  =>
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati incrociatori (+ ?n 1)))
+)
+
+;asserisce che una nave da 3 è affondata facendo una visita right-to-left
+(defrule verifica-incrociatori-affondati-right-to-left
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))))
+      (k-cell (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y5&:(= ?y5 (- ?y1 4))))
+      (test (> (- ?y1 4) 9)))
+
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4) (hit 1)))
+  
+  ?affondati <- (affondati incrociatori ?n)
+  (test (< ?n 3))
+  =>
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati incrociatori (+ ?n 1)))
+)
+
+;asserisce che una nave da 4 è affondata facendo una visita top-down 
+(defrule verifica-corazzata-affondata-top-down
+  (k-cell (x ?x1) (y ?y) (content water))
+
+  (or (exec (action guess) (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x4&:(= ?x4 (+ ?x1 3))) (y ?y))
+      (k-cell (x ?x4&:(= ?x4 (+ ?x1 3))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x5&:(= ?x5 (+ ?x1 4))) (y ?y))
+      (k-cell (x ?x5&:(= ?x5 (+ ?x1 4))) (y ?y) (content ~water)))
+
+  (or (k-cell (x ?x6&:(= ?x6 (+ ?x1 5))) (y ?y))
+      (test (< (+ ?x1 5) 0)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3 ?x4 ?x5) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati corazzate 0)
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3 ?x4 ?x5) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati corazzate 1))
+)
+
+;asserisce che una nave da 4 è affondata facendo una visita bottom up
+(defrule verifica-corazzata-affondata-bottom-up
+  (k-cell (x ?x1) (y ?y) (content water))
+
+  (or (exec (action guess) (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y))
+      (k-cell (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y))
+      (k-cell (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x4&:(= ?x4 (- ?x1 3))) (y ?y))
+      (k-cell (x ?x4&:(= ?x4 (- ?x1 3))) (y ?y) (content ~water)))
+
+  (or (exec (action guess) (x ?x5&:(= ?x5 (- ?x1 4))) (y ?y))
+      (k-cell (x ?x5&:(= ?x5 (- ?x1 4))) (y ?y) (content ~water)))
+
+  (or (k-cell (x ?x6&:(= ?x6 (- ?x1 5))) (y ?y))
+      (test (< (- ?x1 5) 0)))
+
+  (not (nave-verticale-affondata (xs ?x2 ?x3 ?x4 ?x5) (y ?y) (hit 1)))
+  
+  ?affondati <- (affondati corazzate 0)
+  =>
+  (assert (nave-verticale-affondata (xs ?x2 ?x3 ?x4 ?x5) (y ?y) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati corazzate 1))
+)
+
+;asserisce che una nave da 4 è affondata facendo una visita left-to-right
+(defrule verifica-corazzata-affondata-left-to-right
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (+ ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (+ ?y1 2))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))))
+      (k-cell (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y5&:(= ?y5 (+ ?y1 3))))
+      (k-cell (x ?x) (y ?y5&:(= ?y5 (+ ?y1 3))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y6&:(= ?y6 (+ ?y1 4))))
+      (test (> (+ ?y1 5) 9)))
+
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4 ?y5) (hit 1)))
+  
+  ?affondati <- (affondati corazzate 0)
+  =>
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4 ?y5) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati corazzate 1))
+)
+
+;asserisce che una nave da 4 è affondata facendo una visita left-to-right
+(defrule verifica-corazzata-affondata-right-to-left
+  (k-cell (x ?x) (y ?y1) (content water))
+
+  (or (exec (action guess) (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))))
+      (k-cell (x ?x) (y ?y2&:(= ?y2 (- ?y1 1))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))))
+      (k-cell (x ?x) (y ?y3&:(= ?y3 (- ?y1 2))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))))
+      (k-cell (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))) (content ~water)))
+
+  (or (exec (action guess) (x ?x) (y ?y5&:(= ?y5 (- ?y1 3))))
+      (k-cell (x ?x) (y ?y5&:(= ?y5 (- ?y1 3))) (content ~water)))
+
+  (or (k-cell (x ?x) (y ?y6&:(= ?y6 (- ?y1 4))))
+      (test (< (- ?y1 5) 0)))
+
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4 ?y5) (hit 1)))
+  
+  ?affondati <- (affondati corazzate 0)
+  =>
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3 ?y4 ?y5) (hit 1)))
+  (retract ?affondati)
+  (assert (affondati corazzate 1))
+)
+
+; se viene trovato un top in (x, y), si fa una fire di (x+2, y) 
+(defrule fire-top-k-cell (declare (salience 20))
+  (k-cell (x ?x) (y ?y) (content top))
+  (test (< ?x 8))
+
+  (k-per-col (col ?y) (num ?n))
+  (test (> ?n 0))
+
+  (not (k-cell (x ?newx&:(= ?newx (+ ?x 2))) (y ?y)))
+  (not (k-cell (x ?newx3&:(= ?newx3 (+ ?x 1))) (y ?y) (content bot)))
+  (not (exec (action fire) (x ?newx2&:(= ?newx2 (+ ?x 2))) (y ?y)))
+
+  ;se fossero state già trovate entrambe le navi da 3 e da 4 caselle, non avrebbe senso fare una fire sulla casella
+  (not (affondati incrociatori 0))
+  (not (affondati corazzate 0))
+
+  (status (step ?s)(currently running))
+	(moves (fires ?nf&:(> ?nf 0))) 
+  
+  =>
+
+  (assert (exec (step ?s) (action fire) (x (+ ?x 2)) (y ?y))) 
+  (pop-focus)
+)
+
+; se viene trovato un top in (x, y), si fa una fire di (x-2, y) 
+(defrule fire-bot-k-cell (declare (salience 20))
+  (k-cell (x ?x) (y ?y) (content bot))
+  (test (> ?x 1))
+
+  (k-per-col (col ?y) (num ?n))
+  (test (> ?n 0))
+
+  (not (k-cell (x ?newx&:(= ?newx (- ?x 2))) (y ?y))) 
+  (not (k-cell (x ?newx3&:(= ?newx3 (- ?x 1))) (y ?y) (content top)))
+  (not (exec (action fire) (x ?newx2&:(= ?newx2 (- ?x 2))) (y ?y)))
+
+  ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
+  (not (affondati incrociatori 0))
+  (not (affondati corazzate 0))
+
+  (status (step ?s)(currently running))
+	(moves (fires ?nf&:(> ?nf 0))) 
+  
+  =>
+
+  (assert (exec (step ?s) (action fire) (x (- ?x 2)) (y ?y))) 
+  (pop-focus)
+)
+
+; se viene trovato un top in (x, y), si fa una fire di (x, y+2) 
+(defrule fire-left-k-cell (declare (salience 20))
+  (k-cell (x ?x) (y ?y) (content left))
+  (test (< ?y 8))
+
+  (k-per-row (row ?x) (num ?n))
+  (test (> ?n 0))
+
+  (not (k-cell (x ?x) (y ?newy&:(= ?newy (+ ?y 2))) )) 
+  (not (k-cell (x ?x) (y ?newy3&:(= ?newy3 (+ ?y 1)))  (content right)))
+  (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (+ ?y 2)))))
+
+  ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
+  (not (affondati incrociatori 0))
+  (not (affondati corazzate 0))
+
+  (status (step ?s)(currently running))
+	(moves (fires ?nf&:(> ?nf 0))) 
+  
+  =>
+
+  (assert (exec (step ?s) (action fire) (x ?x) (y (+ ?y 2)))) 
+  (pop-focus)
+)
+
+; se viene trovato un top in (x, y), si fa una fire di (x, y-2) 
+(defrule fire-right-k-cell (declare (salience 20))
+  (k-cell (x ?x) (y ?y) (content right))
+  (test (> ?y 1))
+
+  (k-per-row (row ?x) (num ?n))
+  (test (> ?n 0))
+
+  (not (k-cell (x ?x) (y ?newy&:(= ?newy (- ?y 2))) )) 
+  (not (k-cell (x ?x) (y ?newy3&:(= ?newy3 (- ?y 1)))  (content left))) 
+  (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (- ?y 2)))))
+
+  ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
+  (not (affondati incrociatori 0))
+  (not (affondati corazzate 0))
+  
+  (status (step ?s)(currently running))
+	(moves (fires ?nf&:(> ?nf 0))) 
+  
+  =>
+
+  (assert (exec (step ?s) (action fire) (x ?x) (y (- ?y 2)))) 
+  (pop-focus)
+)
+
+
+
+
+
