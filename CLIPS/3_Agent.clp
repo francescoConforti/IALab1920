@@ -292,7 +292,7 @@
 (defrule verifica-cacciatorpedinieri-affondati-bottom-up (declare (salience 50))
   (k-cell (x ?x1) (y ?y) (content water))
   
-  (or (exec (action guess) ((x ?x2&:(= ?x2 (- ?x1 1))) (y ?y))
+  (or (exec (action guess) (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y))
       (k-cell (x ?x2&:(= ?x2 (- ?x1 1))) (y ?y) (content ~water)))
   
   (or (exec (action guess) (x ?x3&:(= ?x3 (- ?x1 2))) (y ?y))
@@ -315,7 +315,7 @@
 (defrule verifica-cacciatorpedinieri-affondati-top-down (declare (salience 50))
   (k-cell (x ?x1) (y ?y) (content water))
 
-  (or (exec (action guess) ((x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y))
+  (or (exec (action guess) (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y))
       (k-cell (x ?x2&:(= ?x2 (+ ?x1 1))) (y ?y) (content ~water)))
   
   (or (exec (action guess) (x ?x3&:(= ?x3 (+ ?x1 2))) (y ?y))
@@ -347,12 +347,12 @@
   (or (k-cell (x ?x) (y ?y4&:(= ?y4 (+ ?y1 3))))
       (test (> (+ ?y1 3) 9)))
 
-  (not (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3) (hit 1)))
   
   ?affondati <- (affondati cacciatorpedinieri ?n)
   (test (< ?n 4))
   =>
-  (assert (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3) (hit 1)))
   (retract ?affondati)
   (assert (affondati cacciatorpedinieri (+ ?n 1)))
 )
@@ -370,12 +370,12 @@
   (or (k-cell (x ?x) (y ?y4&:(= ?y4 (- ?y1 3))))
       (test (< (- ?y1 3) 0)))
 
-  (not (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (not (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3) (hit 1)))
   
   ?affondati <- (affondati cacciatorpedinieri ?n)
   (test (< ?n 4))
   =>
-  (assert (nave-orizzontale-affondata (xs ?x2 ?x3) (y ?y) (hit 1)))
+  (assert (nave-orizzontale-affondata (x ?x) (ys ?y2 ?y3) (hit 1)))
   (retract ?affondati)
   (assert (affondati cacciatorpedinieri (+ ?n 1)))
 )
@@ -1403,8 +1403,3 @@
   (assert (exec (step ?s) (action fire) (x ?x) (y (- ?y 2)))) 
   (pop-focus)
 )
-
-
-
-
-
