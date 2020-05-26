@@ -9,6 +9,18 @@
   (slot reason (type STRING))
 )
 
+(deftemplate nave-verticale-affondata
+  (multislot xs)
+  (slot y)
+  (slot hit (allowed-values 0 1)) ;0 indica che non è stata colpita, 1 il contrario
+)
+
+(deftemplate nave-orizzontale-affondata
+  (slot x)
+  (multislot ys)
+  (slot hit (allowed-values 0 1)) ;0 indica che non è stata colpita, 1 il contrario
+)
+
 ;  ---------------------------------------------
 ;  -------------- Fatti iniziali ---------------
 ;  ---------------------------------------------
@@ -1305,8 +1317,8 @@
   (not (exec (action fire) (x ?newx2&:(= ?newx2 (+ ?x 2))) (y ?y)))
 
   ;se fossero state già trovate entrambe le navi da 3 e da 4 caselle, non avrebbe senso fare una fire sulla casella
-  (not (affondati incrociatori 0))
-  (not (affondati corazzate 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
 
   (status (step ?s)(currently running))
 	(moves (fires ?nf&:(> ?nf 0))) 
@@ -1330,8 +1342,8 @@
   (not (exec (action fire) (x ?newx2&:(= ?newx2 (- ?x 2))) (y ?y)))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
-  (not (affondati incrociatori 0))
-  (not (affondati corazzate 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
 
   (status (step ?s)(currently running))
 	(moves (fires ?nf&:(> ?nf 0))) 
@@ -1355,8 +1367,8 @@
   (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (+ ?y 2)))))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
-  (not (affondati incrociatori 0))
-  (not (affondati corazzate 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
 
   (status (step ?s)(currently running))
 	(moves (fires ?nf&:(> ?nf 0))) 
@@ -1380,8 +1392,8 @@
   (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (- ?y 2)))))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
-  (not (affondati incrociatori 0))
-  (not (affondati corazzate 0))
+  (not (affondati incrociatori 2))
+  (not (affondati corazzate 1))
   
   (status (step ?s)(currently running))
 	(moves (fires ?nf&:(> ?nf 0))) 
