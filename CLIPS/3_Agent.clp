@@ -1459,7 +1459,7 @@
   (not (exec (action guess) (x ?r) (y ?B)))
   =>
   (retract ?fact1)
-  (assert (exec (action guess) (x ?r) (y ?B)))
+  (assert (exec (step ?s) (action guess) (x ?r) (y ?B)))
   (pop-focus)
 )
 
@@ -1476,7 +1476,7 @@
   (not (exec (action guess) (x ?B) (y ?c)))
   =>
   (retract ?fact1)
-  (assert (exec (action guess) (x ?B) (y ?c)))
+  (assert (exec (step ?s) (action guess) (x ?B) (y ?c)))
   (pop-focus)
 )
 
