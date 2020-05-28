@@ -89,17 +89,17 @@
 ;  ------------------ Salience 70 --------------------------
 ;  ---------------------------------------------------------
 
-(defrule cleanX (declare (salience 70))
-  ?k <- (k-cell (x -1|10))
-  =>
-  (retract ?k)
-)
+; (defrule cleanX (declare (salience 70))
+;   ?k <- (k-cell (x -1|10))
+;   =>
+;   (retract ?k)
+; )
 
-(defrule cleanY (declare (salience 70))
-  ?k <- (k-cell (y -1|10))
-  =>
-  (retract ?k)
-)
+; (defrule cleanY (declare (salience 70))
+;   ?k <- (k-cell (y -1|10))
+;   =>
+;   (retract ?k)
+; )
 
 ; è fondamentale che questa regola abbia salience > reduce-k-new-cell
 (defrule reduce-row (declare (salience 70))
@@ -160,9 +160,12 @@
 		(water-if-empty ?cnt ?y))
 )
 
+; in questa regola faccio la guess in via straordinaria perchè se no va in loop
 (defrule empty-around-sub (declare (salience 50))
   (k-cell (x ?x) (y ?y) (content sub))
   ?affondati <- (affondati sottomarini ?n)
+  (status (step ?s)(currently running))
+  (not (exec (action guess) (x ?x) (y ?y)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y ?y) (content water)))
   (assert (k-cell (x (- ?x 1)) (y ?y) (content water)))
@@ -170,6 +173,8 @@
   (assert (k-cell (x ?x) (y (- ?y 1)) (content water)))
   (retract ?affondati)
   (assert (affondati sottomarini (+ ?n 1)))
+  (assert (exec (step ?s) (action guess) (x ?x) (y ?y)))
+  (pop-focus)
 )
 
 (defrule empty-around-left (declare (salience 50))
