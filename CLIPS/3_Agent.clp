@@ -68,6 +68,22 @@
   (assert (CONFLICT (x ?x) (y ?y) (reason "guess e fire sulla stessa casella")))
 )
 
+; ---------------------------------------------------------
+; ------------ Affondate tutte le navi: risolvi -----------
+; ---------------------- Salience 90 --------------------
+; ---------------------------------------------------------
+
+(defrule solve-sunk-all-boats (declare (salience 90))
+  (affondati sottomarini 4)
+  (affondati cacciatorpedinieri 3)
+  (affondati incrociatori 2)
+  (affondati corazzate 1)
+  (status (step ?s)(currently running))
+  =>
+  (assert (exec (step ?s) (action solve))) 
+  (pop-focus)
+)
+
 ;  ---------------------------------------------------------
 ;  --- Regole per la pulizia e la gestione dell'ambiente ---
 ;  ------------------ Salience 70 --------------------------
@@ -1337,7 +1353,34 @@
   (pop-focus)
 )
 
-(defrule fire-without-knowledge-biggestCol
+; ---------------------------------------------------------
+; --------------- Regole per fire alla cieca --------------
+; ---------------------- Salience 10 ----------------------
+; ---------------------------------------------------------
+
+(defrule biggest-row-or-col-is-col (declare (salience 10))
+  (not (moves (fires 0)))
+  (k-per-col (col ?c) (num ?maxcol))
+  (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
+  (k-per-row (row ?r) (num ?maxrow))
+  (not (k-per-row (num ?nr & :(> ?nr ?maxrow))))
+  (test (> ?maxcol ?maxrow))
+  =>
+  (assert (biggest-k col ?c))
+)
+
+(defrule biggest-row-or-col-is-row (declare (salience 10))
+  (not (moves (fires 0)))
+  (k-per-col (col ?c) (num ?maxcol))
+  (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
+  (k-per-row (row ?r) (num ?maxrow))
+  (not (k-per-row (num ?nr & :(> ?nr ?maxrow))))
+  (test (>= ?maxrow ?maxcol))
+  =>
+  (assert (biggest-k row ?r))
+)
+
+(defrule fire-without-knowledge-biggestCol (declare (salience 10))
   ?fact1 <- (biggest-k col ?B)
 
   (k-per-row (row ?r) (num ?minRow))
@@ -1354,7 +1397,7 @@
   (pop-focus)
 )
 
-(defrule fire-without-knowledge-biggestRow
+(defrule fire-without-knowledge-biggestRow  (declare (salience 10))
   ?fact1 <- (biggest-k row ?B)
 
   (k-per-col (col ?c) (num ?mincol))
@@ -1368,5 +1411,78 @@
 =>
   (retract ?fact1)
   (assert (exec (action fire) (x ?B) (y ?c)))
+  (pop-focus)
+)
+
+; ---------------------------------------------------------
+; --------------- Regole per guess alla cieca -------------
+; ---------------------- Salience -10 ---------------------
+; ---------------------------------------------------------
+
+(defrule biggest-row-or-col-is-col-guess (declare (salience -10))
+  (not (moves (guesses 0)))
+  (k-per-col (col ?c) (num ?maxcol))
+  (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
+  (k-per-row (row ?r) (num ?maxrow))
+  (not (k-per-row (num ?nr & :(> ?nr ?maxrow))))
+  (test (> ?maxcol ?maxrow))
+  =>
+  (assert (biggest-k-guess col ?c))
+)
+
+(defrule biggest-row-or-col-is-row-guess (declare (salience -10))
+  (not (moves (guesses 0)))
+  (k-per-col (col ?c) (num ?maxcol))
+  (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
+  (k-per-row (row ?r) (num ?maxrow))
+  (not (k-per-row (num ?nr & :(> ?nr ?maxrow))))
+  (test (>= ?maxrow ?maxcol))
+  =>
+  (assert (biggest-k-guess row ?r))
+)
+
+(defrule guess-without-knowledge-biggestCol (declare (salience -10))
+  ?fact1 <- (biggest-k-guess col ?B)
+
+  (k-per-row (row ?r) (num ?minRow))
+  (not (k-per-row (num ?nr & :(< ?nr ?minRow))))
+
+  (not (moves (guesses 0)))
+  (status (step ?s)(currently running))
+
+  (not (k-cell (x ?r) (y ?B)))
+  (not (exec (action guess) (x ?r) (y ?B)))
+  =>
+  (retract ?fact1)
+  (assert (exec (action guess) (x ?r) (y ?B)))
+  (pop-focus)
+)
+
+(defrule guess-without-knowledge-biggestRow (declare (salience -10))
+  ?fact1 <- (biggest-k-guess row ?B)
+
+  (k-per-col (col ?c) (num ?mincol))
+  (not (k-per-col (num ?nc & :(< ?nc ?mincol))))
+
+  (not (moves (guesses 0)))
+  (status (step ?s)(currently running))
+
+  (not (k-cell (x ?B) (y ?c)))
+  (not (exec (action guess) (x ?B) (y ?c)))
+  =>
+  (retract ?fact1)
+  (assert (exec (action guess) (x ?B) (y ?c)))
+  (pop-focus)
+)
+
+; ---------------------------------------------------------
+; ----- Se non ci sono più mosse disponibili risolvi ------
+; ---------------------- Salience -100 --------------------
+; ---------------------------------------------------------
+
+(defrule solve-no-more-moves (declare (salience -100))
+  (status (step ?s)(currently running))
+  =>
+  (assert (exec (step ?s) (action solve))) 
   (pop-focus)
 )
