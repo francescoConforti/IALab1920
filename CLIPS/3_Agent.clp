@@ -89,17 +89,17 @@
 ;  ------------------ Salience 70 --------------------------
 ;  ---------------------------------------------------------
 
-; (defrule cleanX (declare (salience 70))
-;   ?k <- (k-cell (x -1|10))
-;   =>
-;   (retract ?k)
-; )
+(defrule cleanX (declare (salience 70))
+  ?k <- (k-cell (x -1|10))
+  =>
+  (retract ?k)
+)
 
-; (defrule cleanY (declare (salience 70))
-;   ?k <- (k-cell (y -1|10))
-;   =>
-;   (retract ?k)
-; )
+(defrule cleanY (declare (salience 70))
+  ?k <- (k-cell (y -1|10))
+  =>
+  (retract ?k)
+)
 
 ; è fondamentale che questa regola abbia salience > reduce-k-new-cell
 (defrule reduce-row (declare (salience 70))
