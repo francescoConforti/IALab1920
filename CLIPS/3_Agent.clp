@@ -1336,3 +1336,37 @@
   (assert (exec (step ?s) (action fire) (x ?x) (y (- ?y 2)))) 
   (pop-focus)
 )
+
+(defrule fire-without-knowledge-biggestCol
+  ?fact1 <- (biggest-k col ?B)
+
+  (k-per-row (row ?r) (num ?minRow))
+  (not (k-per-row (num ?nr & :(< ?nr ?minRow))))
+
+  (not (moves (fires 0)))
+  (status (step ?s)(currently running))
+
+  (not (k-cell (x ?r) (y ?B))
+  (not (exec (action guess) (x ?r) (y ?B))
+=>
+  (retract ?fact1)
+  (assert (exec (action fire) (x ?r) (y ?B)))
+  (pop-focus)
+)
+
+(defrule fire-without-knowledge-biggestRow
+  ?fact1 <- (biggest-k row ?B)
+
+  (k-per-col (col ?c) (num ?mincol))
+  (not (k-per-col (num ?nc & :(< ?nc ?mincol))))
+
+  (not (moves (fires 0)))
+  (status (step ?s)(currently running))
+
+  (not (k-cell (x ?B) (y ?c))
+  (not (exec (action guess) (x ?B) (y ?c))
+=>
+  (retract ?fact1)
+  (assert (exec (action fire) (x ?B) (y ?c)))
+  (pop-focus)
+)
