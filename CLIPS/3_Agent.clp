@@ -1346,8 +1346,8 @@
   (not (moves (fires 0)))
   (status (step ?s)(currently running))
 
-  (not (k-cell (x ?r) (y ?B))
-  (not (exec (action guess) (x ?r) (y ?B))
+  (not (k-cell (x ?r) (y ?B)))
+  (not (exec (action guess) (x ?r) (y ?B)))
 =>
   (retract ?fact1)
   (assert (exec (action fire) (x ?r) (y ?B)))
@@ -1363,8 +1363,8 @@
   (not (moves (fires 0)))
   (status (step ?s)(currently running))
 
-  (not (k-cell (x ?B) (y ?c))
-  (not (exec (action guess) (x ?B) (y ?c))
+  (not (k-cell (x ?B) (y ?c)))
+  (not (exec (action guess) (x ?B) (y ?c)))
 =>
   (retract ?fact1)
   (assert (exec (action fire) (x ?B) (y ?c)))
