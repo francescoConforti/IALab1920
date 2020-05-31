@@ -21,6 +21,26 @@
   (slot hit (allowed-values 0 1)) ;0 indica che non è stata colpita, 1 il contrario
 )
 
+(deftemplate counter-row-fire
+  (slot row)
+  (slot num)
+)
+
+(deftemplate counter-col-fire
+  (slot col)
+  (slot num)
+)
+
+(deftemplate counter-row-guess
+  (slot row)
+  (slot num)
+)
+
+(deftemplate counter-col-guess
+  (slot col)
+  (slot num)
+)
+
 ;  ---------------------------------------------
 ;  -------------- Fatti iniziali ---------------
 ;  ---------------------------------------------
@@ -664,7 +684,7 @@
   (k-cell (x ?x) (y ?y) (content top))
   (test (> (+ ?x 2) 9))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -680,7 +700,7 @@
   (k-cell (x ?xwater) (y ?y) (content water))
   (test (eq (+ ?x 2) ?xwater))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -696,7 +716,7 @@
   (affondati incrociatori 2)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -714,7 +734,7 @@
   (or (not (affondati incrociatori 2))
       (not (affondati corazzate 1)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (+ ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -729,7 +749,7 @@
   (k-cell (x ?x) (y ?y) (content bot))
   (test (< (- ?x 2) 0))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -745,7 +765,7 @@
   (k-cell (x ?xwater) (y ?y) (content water))
   (test (eq (- ?x 2) ?xwater))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -761,7 +781,7 @@
   (affondati incrociatori 2)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -779,7 +799,7 @@
   (or (not (affondati incrociatori 2))
       (not (affondati corazzate 1)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nextx & :(= (- ?x 1) ?nextx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -794,7 +814,7 @@
   (k-cell (x ?x) (y ?y) (content left))
   (test (> (+ ?y 2) 9))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -810,7 +830,7 @@
   (k-cell (x ?x) (y ?ywater) (content water))
   (test (eq (+ ?y 2) ?ywater))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -826,7 +846,7 @@
   (affondati incrociatori 2)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -844,7 +864,7 @@
   (or (not (affondati incrociatori 2))
       (not (affondati corazzate 1)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (+ ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -859,7 +879,7 @@
   (k-cell (x ?x) (y ?y) (content right))
   (test (< (- ?y 2) 0))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -875,7 +895,7 @@
   (k-cell (x ?x) (y ?ywater) (content water))
   (test (eq (- ?y 2) ?ywater))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -891,7 +911,7 @@
   (affondati incrociatori 2)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -909,7 +929,7 @@
   (or (not (affondati incrociatori 2))
       (not (affondati corazzate 1)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
+	(not (exec (action guess|fire) (x ?x) (y ?nexty & :(= (- ?y 1) ?nexty))))
   (not (moves (guesses 0)))
   =>
   ; tengo anche traccia dell'acqua intorno alla nave
@@ -926,7 +946,7 @@
   (affondati cacciatorpedinieri 3)
   (test (> (+ ?x 3) 9))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -942,7 +962,7 @@
   (affondati cacciatorpedinieri 3)
   (k-cell (x ?xwater & :(= (+ ?x 3) ?xwater)) (y ?y) (content water))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -958,7 +978,7 @@
   (affondati cacciatorpedinieri 3)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -976,7 +996,7 @@
   (affondati cacciatorpedinieri 3)
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -992,7 +1012,7 @@
   (affondati cacciatorpedinieri 3)
   (test (< (- ?x 3) 0))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1008,7 +1028,7 @@
   (affondati cacciatorpedinieri 3)
   (k-cell (x ?xwater & :(= (- ?x 3) ?xwater)) (y ?y) (content water))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1024,7 +1044,7 @@
   (affondati cacciatorpedinieri 3)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1042,7 +1062,7 @@
   (affondati cacciatorpedinieri 3)
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1058,7 +1078,7 @@
   (affondati cacciatorpedinieri 3)
   (test (> (+ ?y 3) 9))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1074,7 +1094,7 @@
   (affondati cacciatorpedinieri 3)
   (k-cell (x ?x) (y ?ywater & :(= (+ ?y 3) ?ywater)) (content water))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1090,7 +1110,7 @@
   (affondati cacciatorpedinieri 3)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1108,7 +1128,7 @@
   (test (<= (+ ?y 3) 9))
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1124,7 +1144,7 @@
   (affondati cacciatorpedinieri 3)
   (test (< (- ?y 3) 0))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1140,7 +1160,7 @@
   (affondati cacciatorpedinieri 3)
   (k-cell (x ?x) (y ?ywater & :(= (- ?y 3) ?ywater)) (content water))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1156,7 +1176,7 @@
   (affondati cacciatorpedinieri 3)
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1174,7 +1194,7 @@
   (test (>= (- ?y 3) 0))
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1191,7 +1211,7 @@
       (test (< (- ?y 1) 0)))
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y)))
+	(not (exec (action guess|fire) (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1209,7 +1229,7 @@
       (test (< (- ?y 1) 0)))
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y)))
+	(not (exec (action guess|fire) (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1226,7 +1246,7 @@
       (test (> (+ ?y 1) 9))
       (test (< (- ?y 1) 0)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y)))
+	(not (exec (action guess|fire) (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1242,7 +1262,7 @@
       (test (> (+ ?y 1) 9))
       (test (< (- ?y 1) 0)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y)))
+	(not (exec (action guess|fire) (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1259,7 +1279,7 @@
       (test (< (- ?x 1) 0)))
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?y1 & :(= (+ ?y 1) ?y1))))
+	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (+ ?y 1) ?y1))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1277,7 +1297,7 @@
       (test (< (- ?y 1) 0)))
   (affondati corazzate 1)
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
+	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
@@ -1294,7 +1314,7 @@
       (test (> (+ ?x 1) 9))
       (test (< (- ?x 1) 0)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?y1 & :(= (+ ?y 1) ?y1))))
+	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (+ ?y 1) ?y1))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (+ ?y 1)) (content water)))
@@ -1310,7 +1330,7 @@
       (test (> (+ ?y 1) 9))
       (test (< (- ?y 1) 0)))
   (status (step ?s)(currently running))
-	(not (exec (action guess) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
+	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 1)) (y (- ?y 1)) (content water)))
@@ -1334,7 +1354,7 @@
 
   (not (k-cell (x ?newx&:(= ?newx (+ ?x 2))) (y ?y)))
   (not (k-cell (x ?newx3&:(= ?newx3 (+ ?x 1))) (y ?y) (content bot)))
-  (not (exec (action fire) (x ?newx2&:(= ?newx2 (+ ?x 2))) (y ?y)))
+  (not (exec (action guess|fire) (x ?newx2&:(= ?newx2 (+ ?x 2))) (y ?y)))
 
   ;se fossero state già trovate entrambe le navi da 3 e da 4 caselle, non avrebbe senso fare una fire sulla casella
   (not (affondati incrociatori 2))
@@ -1359,7 +1379,7 @@
 
   (not (k-cell (x ?newx&:(= ?newx (- ?x 2))) (y ?y))) 
   (not (k-cell (x ?newx3&:(= ?newx3 (- ?x 1))) (y ?y) (content top)))
-  (not (exec (action fire) (x ?newx2&:(= ?newx2 (- ?x 2))) (y ?y)))
+  (not (exec (action guess|fire) (x ?newx2&:(= ?newx2 (- ?x 2))) (y ?y)))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
   (not (affondati incrociatori 2))
@@ -1384,7 +1404,7 @@
 
   (not (k-cell (x ?x) (y ?newy&:(= ?newy (+ ?y 2))) )) 
   (not (k-cell (x ?x) (y ?newy3&:(= ?newy3 (+ ?y 1)))  (content right)))
-  (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (+ ?y 2)))))
+  (not (exec (action guess|fire) (x ?x) (y ?newy2&:(= ?newy2 (+ ?y 2)))))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
   (not (affondati incrociatori 2))
@@ -1409,7 +1429,7 @@
 
   (not (k-cell (x ?x) (y ?newy&:(= ?newy (- ?y 2))) )) 
   (not (k-cell (x ?x) (y ?newy3&:(= ?newy3 (- ?y 1)))  (content left))) 
-  (not (exec (action fire) (x ?x) (y ?newy2&:(= ?newy2 (- ?y 2)))))
+  (not (exec (action guess|fire) (x ?x) (y ?newy2&:(= ?newy2 (- ?y 2)))))
 
   ;se fossero state già trovate entrambe le navi, non avrebbe senso fare una fire sulla casella
   (not (affondati incrociatori 2))
@@ -1429,7 +1449,7 @@
 ; ---------------------- Salience 10 ----------------------
 ; ---------------------------------------------------------
 
-(defrule biggest-row-or-col-is-col (declare (salience 10))
+(defrule biggest-row-or-col-is-col-fire (declare (salience 10))
   (not (moves (fires 0)))
   (k-per-col (col ?c) (num ?maxcol))
   (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
@@ -1438,10 +1458,11 @@
   (test (> ?maxcol ?maxrow))
   (test (> ?maxcol 0))
   =>
-  (assert (biggest-k col ?c))
+  (assert (biggest-k-fire col ?c))
+  (assert (create-counter-row-fire))
 )
 
-(defrule biggest-row-or-col-is-row (declare (salience 10))
+(defrule biggest-row-or-col-is-row-fire (declare (salience 10))
   (not (moves (fires 0)))
   (k-per-col (col ?c) (num ?maxcol))
   (not (k-per-col (num ?nc & :(> ?nc ?maxcol))))
@@ -1450,40 +1471,91 @@
   (test (>= ?maxrow ?maxcol))
   (test (> ?maxrow 0))
   =>
-  (assert (biggest-k row ?r))
+  (assert (biggest-k-fire row ?r))
+  (assert (create-counter-col-fire))
 )
 
-(defrule fire-without-knowledge-biggestCol (declare (salience 10))
-  ?fact1 <- (biggest-k col ?B)
+(defrule create-counter-col-fire (declare (salience 10))
+  ?create <- (create-counter-col-fire)
+  =>
+  (do-for-all-facts ((?kcol k-per-col)) (assert (counter-col-fire (col ?kcol:col) (num ?kcol:num))))
+  (retract ?create)
+)
 
-  (k-per-row (row ?r) (num ?minRow))
-  (not (k-per-row (num ?nr & :(< ?nr ?minRow))))
+(defrule create-counter-row-fire (declare (salience 10))
+  ?create <- (create-counter-row-fire)
+  =>
+  (do-for-all-facts ((?krow k-per-row)) (assert (counter-row-fire (row ?krow:row) (num ?krow:num))))
+  (retract ?create)
+)
 
+(defrule clean-counter-col-fire (declare (salience 10))
+  ?counter <- (counter-col-fire (num 0))
+  =>
+  (retract ?counter)
+)
+
+(defrule clean-counter-row-fire (declare (salience 10))
+  ?counter <- (counter-row-fire (num 0))
+  =>
+  (retract ?counter)
+)
+
+(defrule fire-without-knowledge-biggestRow-pass (declare (salience 10))
+  (not (counter-col-fire (num 0)))
+  ?fact1 <- (biggest-k-fire row ?B)
+  ?counter <- (counter-col-fire (col ?c) (num ?n))
+  (not (counter-col-fire (num ?nn & :(> ?nn ?n))))
+  (or (k-cell (x ?B) (y ?c))
+      (exec (action guess|fire) (x ?B) (y ?c)))
   (not (moves (fires 0)))
   (status (step ?s)(currently running))
+  =>
+  (retract ?counter)
+)
 
-  (not (k-cell (x ?r) (y ?B)))
-  (not (exec (action guess) (x ?r) (y ?B)))
-=>
-  (retract ?fact1)
-  (assert (exec (action fire) (x ?r) (y ?B)))
+(defrule fire-without-knowledge-biggestRow-OK (declare (salience 10))
+  (not (counter-col-fire (num 0)))
+  ?biggest <- (biggest-k-fire row ?B)
+  ?counter <- (counter-col-fire (col ?c) (num ?n))
+  (not (counter-col-fire (num ?nn & :(> ?nn ?n))))
+  (not (k-cell (x ?B) (y ?c)))
+  (not (exec (action guess|fire) (x ?B) (y ?c)))
+  (not (moves (fires 0)))
+  (status (step ?s)(currently running))
+  =>
+  (retract ?biggest)
+  (assert (exec (step ?s) (action fire) (x ?B) (y ?c)))
+  (do-for-all-facts ((?counter counter-col-fire)) (retract ?counter))
   (pop-focus)
 )
 
-(defrule fire-without-knowledge-biggestRow  (declare (salience 10))
-  ?fact1 <- (biggest-k row ?B)
-
-  (k-per-col (col ?c) (num ?mincol))
-  (not (k-per-col (num ?nc & :(< ?nc ?mincol))))
-
+(defrule fire-without-knowledge-biggestCol-pass (declare (salience 10))
+  (not (counter-row-fire (num 0)))
+  ?fact1 <- (biggest-k-fire col ?c)
+  ?counter <- (counter-row-fire (row ?r) (num ?n))
+  (not (counter-row-fire (num ?nn & :(> ?nn ?n))))
+  (or (k-cell (x ?r) (y ?c))
+      (exec (action guess|fire) (x ?r) (y ?c)))
   (not (moves (fires 0)))
   (status (step ?s)(currently running))
+  =>
+  (retract ?counter)
+)
 
-  (not (k-cell (x ?B) (y ?c)))
-  (not (exec (action guess) (x ?B) (y ?c)))
-=>
-  (retract ?fact1)
-  (assert (exec (action fire) (x ?B) (y ?c)))
+(defrule fire-without-knowledge-biggestCol-OK (declare (salience 10))
+  (not (counter-row-fire (num 0)))
+  ?biggest <- (biggest-k-fire col ?c)
+  ?counter <- (counter-row-fire (row ?r) (num ?n))
+  (not (counter-row-fire (num ?nn & :(> ?nn ?n))))
+  (not (k-cell (x ?r) (y ?c)))
+  (not (exec (action guess|fire) (x ?r) (y ?c)))
+  (not (moves (fires 0)))
+  (status (step ?s)(currently running))
+  =>
+  (retract ?biggest)
+  (assert (exec (step ?s) (action fire) (x ?r) (y ?c)))
+  (do-for-all-facts ((?counter counter-row-fire)) (retract ?counter))
   (pop-focus)
 )
 
@@ -1502,6 +1574,7 @@
   (test (> ?maxcol 0))
   =>
   (assert (biggest-k-guess col ?c))
+  (assert (create-counter-row-guess))
 )
 
 (defrule biggest-row-or-col-is-row-guess (declare (salience -10))
@@ -1514,39 +1587,90 @@
   (test (> ?maxrow 0))
   =>
   (assert (biggest-k-guess row ?r))
+  (assert (create-counter-col-guess))
 )
 
-(defrule guess-without-knowledge-biggestCol (declare (salience -10))
-  ?fact1 <- (biggest-k-guess col ?B)
+(defrule create-counter-col-guess (declare (salience -10))
+  ?create <- (create-counter-col-guess)
+  =>
+  (do-for-all-facts ((?kcol k-per-col)) (assert (counter-col-guess (col ?kcol:col) (num ?kcol:num))))
+  (retract ?create)
+)
 
-  (k-per-row (row ?r) (num ?minRow))
-  (not (k-per-row (num ?nr & :(< ?nr ?minRow))))
+(defrule create-counter-row-guess (declare (salience -10))
+  ?create <- (create-counter-row-guess)
+  =>
+  (do-for-all-facts ((?krow k-per-row)) (assert (counter-row-guess (row ?krow:row) (num ?krow:num))))
+  (retract ?create)
+)
 
+(defrule clean-counter-col-guess (declare (salience -10))
+  ?counter <- (counter-col-guess (num 0))
+  =>
+  (retract ?counter)
+)
+
+(defrule clean-counter-row-guess (declare (salience -10))
+  ?counter <- (counter-row-guess (num 0))
+  =>
+  (retract ?counter)
+)
+
+(defrule guess-without-knowledge-biggestRow-pass (declare (salience -10))
+  (not (counter-col-guess (num 0)))
+  ?fact1 <- (biggest-k-guess row ?B)
+  ?counter <- (counter-col-guess (col ?c) (num ?n))
+  (not (counter-col-guess (num ?nn & :(> ?nn ?n))))
+  (or (k-cell (x ?B) (y ?c))
+      (exec (action guess|fire) (x ?B) (y ?c)))
   (not (moves (guesses 0)))
   (status (step ?s)(currently running))
-
-  (not (k-cell (x ?r) (y ?B)))
-  (not (exec (action guess) (x ?r) (y ?B)))
   =>
-  (retract ?fact1)
-  (assert (exec (step ?s) (action guess) (x ?r) (y ?B)))
+  (retract ?counter)
+)
+
+(defrule guess-without-knowledge-biggestRow-OK (declare (salience -10))
+  (not (counter-col-guess (num 0)))
+  ?biggest <- (biggest-k-guess row ?B)
+  ?counter <- (counter-col-guess (col ?c) (num ?n))
+  (not (counter-col-guess (num ?nn & :(> ?nn ?n))))
+  (not (k-cell (x ?B) (y ?c)))
+  (not (exec (action guess|fire) (x ?B) (y ?c)))
+  (not (moves (guesses 0)))
+  (status (step ?s)(currently running))
+  =>
+  (retract ?biggest)
+  (assert (exec (step ?s) (action guess) (x ?B) (y ?c)))
+  (do-for-all-facts ((?counter counter-col-guess)) (retract ?counter))
   (pop-focus)
 )
 
-(defrule guess-without-knowledge-biggestRow (declare (salience -10))
-  ?fact1 <- (biggest-k-guess row ?B)
-
-  (k-per-col (col ?c) (num ?mincol))
-  (not (k-per-col (num ?nc & :(< ?nc ?mincol))))
-
+(defrule guess-without-knowledge-biggestCol-pass (declare (salience -10))
+  (not (counter-row-guess (num 0)))
+  ?fact1 <- (biggest-k-guess col ?c)
+  ?counter <- (counter-row-guess (row ?r) (num ?n))
+  (not (counter-row-guess (num ?nn & :(> ?nn ?n))))
+  (or (k-cell (x ?r) (y ?c))
+      (exec (action guess|fire) (x ?r) (y ?c)))
   (not (moves (guesses 0)))
   (status (step ?s)(currently running))
-
-  (not (k-cell (x ?B) (y ?c)))
-  (not (exec (action guess) (x ?B) (y ?c)))
   =>
-  (retract ?fact1)
-  (assert (exec (step ?s) (action guess) (x ?B) (y ?c)))
+  (retract ?counter)
+)
+
+(defrule guess-without-knowledge-biggestCol-OK (declare (salience -10))
+  (not (counter-row-guess (num 0)))
+  ?biggest <- (biggest-k-guess col ?c)
+  ?counter <- (counter-row-guess (row ?r) (num ?n))
+  (not (counter-row-guess (num ?nn & :(> ?nn ?n))))
+  (not (k-cell (x ?r) (y ?c)))
+  (not (exec (action guess|fire) (x ?r) (y ?c)))
+  (not (moves (guesses 0)))
+  (status (step ?s)(currently running))
+  =>
+  (retract ?biggest)
+  (assert (exec (step ?s) (action guess) (x ?r) (y ?c)))
+  (do-for-all-facts ((?counter counter-row-guess)) (retract ?counter))
   (pop-focus)
 )
 
