@@ -68,8 +68,8 @@
 ;  ---------------------------------------------------------
 
 (defrule conflict-kcell (declare (salience 100))
-  (k-cell (x ?x) (y ?y) (content ?c1))
-  (k-cell (x ?x) (y ?y) (content ~?c1))
+  (k-cell (x ?x) (y ?y) (content ?c1 & ~water))
+  (k-cell (x ?x) (y ?y) (content ~?c1 & ~water))
   =>
   (assert (CONFLICT (x ?x) (y ?y) (reason "la k-cell contiene due parti di nave diverse")))
 )
