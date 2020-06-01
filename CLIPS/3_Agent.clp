@@ -88,6 +88,13 @@
   (assert (CONFLICT (x ?x) (y ?y) (reason "guess e fire sulla stessa casella")))
 )
 
+(defrule conflict-guess-water (declare (salience 100))
+  (exec (action guess) (x ?x) (y ?y))
+  (k-cell (x ?x) (y ?y) (content water))
+  =>
+  (assert (CONFLICT (x ?x) (y ?y) (reason "guess e fire sulla stessa casella")))
+)
+
 ; ---------------------------------------------------------
 ; ------------ Guess sulle caselle che conosco ------------
 ; -------------------- Salience 100 -----------------------
@@ -1309,8 +1316,8 @@
   (k-cell (x ?x) (y ?y) (content middle))
   (or (k-cell (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y) (content water))
       (k-cell (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y) (content water))
-      (test (> (+ ?y 1) 9))
-      (test (< (- ?y 1) 0)))
+      (test (> (+ ?x 1) 9))
+      (test (< (- ?x 1) 0)))
   (affondati corazzate 1)
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
@@ -1343,8 +1350,8 @@
   (k-cell (x ?x) (y ?y) (content middle))
   (or (k-cell (x ?x1 & :(= (+ ?x 1) ?x1)) (y ?y) (content water))
       (k-cell (x ?x1 & :(= (- ?x 1) ?x1)) (y ?y) (content water))
-      (test (> (+ ?y 1) 9))
-      (test (< (- ?y 1) 0)))
+      (test (> (+ ?x 1) 9))
+      (test (< (- ?x 1) 0)))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?y1 & :(= (- ?y 1) ?y1))))
   (not (moves (guesses 0)))
