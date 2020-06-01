@@ -947,6 +947,7 @@
   (test (> (+ ?x 3) 9))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -963,6 +964,7 @@
   (k-cell (x ?xwater & :(= (+ ?x 3) ?xwater)) (y ?y) (content water))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -979,6 +981,7 @@
   (affondati corazzate 1)
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -997,6 +1000,7 @@
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (+ ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1013,6 +1017,7 @@
   (test (< (- ?x 3) 0))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1029,6 +1034,7 @@
   (k-cell (x ?xwater & :(= (- ?x 3) ?xwater)) (y ?y) (content water))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1045,6 +1051,7 @@
   (affondati corazzate 1)
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1063,6 +1070,7 @@
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?nnx & :(= (- ?x 2) ?nnx)) (y ?y)))
+  (not (k-cell (x ?nnx) (y ?y) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (- ?x 2)) (y (+ ?y 1)) (content water)))
@@ -1079,6 +1087,7 @@
   (test (> (+ ?y 3) 9))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1095,6 +1104,7 @@
   (k-cell (x ?x) (y ?ywater & :(= (+ ?y 3) ?ywater)) (content water))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1111,6 +1121,7 @@
   (affondati corazzate 1)
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1129,6 +1140,7 @@
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (+ ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (+ ?y 2)) (content water)))
@@ -1145,6 +1157,7 @@
   (test (< (- ?y 3) 0))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1161,6 +1174,7 @@
   (k-cell (x ?x) (y ?ywater & :(= (- ?y 3) ?ywater)) (content water))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1177,6 +1191,7 @@
   (affondati corazzate 1)
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
@@ -1195,6 +1210,7 @@
   (not (affondati corazzate 1))
   (status (step ?s)(currently running))
 	(not (exec (action guess|fire) (x ?x) (y ?nny & :(= (- ?y 2) ?nny))))
+  (not (k-cell (x ?x) (y ?nny) (content water)))
   (not (moves (guesses 0)))
   =>
   (assert (k-cell (x (+ ?x 1)) (y (- ?y 2)) (content water)))
