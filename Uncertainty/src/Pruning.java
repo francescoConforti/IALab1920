@@ -65,7 +65,6 @@ public class Pruning {
                 } else{
                     newNodes.add(new FullCPTNode(var, cptVal, newParents.toArray(new Node[parents.size()])));
                 }
-                System.out.println(newNodes.get(newNodes.size()-1).getParents());
             }
         }
         List<Node> roots = new ArrayList<>();
@@ -131,7 +130,7 @@ public class Pruning {
             Node end = bn.getNode(rvar);
             for(int i = 0; i < queryVars.length; ++i){
                 Node start = bn.getNode(queryVars[i]);
-                if(!relevantVars.contains(rvar) && !isMSeparated(moralGraph, start, end, queryVars)){
+                if(!relevantVars.contains(rvar) && !isMSeparated(moralGraph, start, end, evidenceVars)){
                     relevantVars.add(rvar);
                 }
             }
@@ -171,7 +170,7 @@ public class Pruning {
     }
 
     private boolean isMSeparatedHelp(Graph<Node> graph, Node start, Node end, RandomVariable[] eviVar) {
-        boolean ret = false;
+        boolean ret = true;
         for (RandomVariable r : eviVar) {
             String nameEvi = r.getName();
             String nameVar = start.getRandomVariable().getName();
@@ -183,8 +182,11 @@ public class Pruning {
         if (start.equals(end)) {
             return false;
         } else {
-            for (Node n : graph.neighborsDestructive(start)) {
-                ret = ret && isMSeparatedHelp(graph, n, end, eviVar);
+            List<Node> neighbors = graph.neighborsDestructive(start);
+            if(neighbors != null){
+                for (Node n : neighbors) {
+                    ret = ret && isMSeparatedHelp(graph, n, end, eviVar);
+                }
             }
         }
         return ret;
@@ -198,7 +200,7 @@ public class Pruning {
         RandomVariable[] queryVars = new RandomVariable[1];
         RandomVariable[] evidenceVars = new RandomVariable[1];
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("MaryCalls")) {
+            if (rv.getName().equals("Earthquake")) {
                 queryVars[0] = rv;
             }
             if (rv.getName().equals("Alarm")) {
