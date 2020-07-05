@@ -46,7 +46,6 @@ public class Pruning {
         for (RandomVariable var : oldNetVars) {
             if (newNetVars.contains(var)) {
                 Node node = oldNet.getNode(var);
-                CPT cpt = (CPT) node.getCPD();
                 Set<Node> parents = node.getParents();
                 List<Node> newParents = new ArrayList<>();
                 for (Node p : parents) {  // I need to set as parents the new nodes, not the ones of the old bn
@@ -58,7 +57,8 @@ public class Pruning {
                 }
                 double[] cptVal = { 0.5, 0.5 };
                 if(parents.size() == newParents.size()){
-                    cptVal = cpt.getProbabilityTable().getValues();
+                    FiniteNode fn = (FiniteNode) node;
+                    cptVal = fn.getCPT().getFactorFor().getValues();
                 }
                 if(newParents.isEmpty()){
                     newNodes.add(new FullCPTNode(var, cptVal));
@@ -200,14 +200,14 @@ public class Pruning {
         RandomVariable[] queryVars = new RandomVariable[1];
         RandomVariable[] evidenceVars = new RandomVariable[1];
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("Earthquake")) {
+            if (rv.getName().equals("JohnCalls")) {
                 queryVars[0] = rv;
             }
             if (rv.getName().equals("Alarm")) {
                 evidenceVars[0] = rv;
             }
         }
-        BayesianNetwork newBN = p.theorem2(bn, queryVars, evidenceVars);
+        BayesianNetwork newBN = p.theorem1(bn, queryVars, evidenceVars);
         System.out.println(newBN.getVariablesInTopologicalOrder());
     }
 }
