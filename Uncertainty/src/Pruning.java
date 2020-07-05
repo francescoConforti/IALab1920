@@ -1,15 +1,17 @@
 
+import aima.core.probability.Factor;
 import aima.core.probability.RandomVariable;
 import aima.core.probability.bayes.BayesianNetwork;
 import aima.core.probability.bayes.FiniteNode;
 import aima.core.probability.bayes.Node;
 import aima.core.probability.bayes.impl.BayesNet;
-import aima.core.probability.bayes.impl.CPT;
 import aima.core.probability.bayes.impl.FullCPTNode;
 import aima.core.probability.example.BayesNetExampleFactory;
+import aima.core.probability.proposition.AssignmentProposition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -28,11 +30,11 @@ public class Pruning {
 
     public BayesianNetwork theorem1(BayesianNetwork bn,
             RandomVariable[] queryVars,
-            RandomVariable[] evidenceVars) {
+            AssignmentProposition[] assignmentPropositions) {
         List<RandomVariable> topologicalOrder = bn.getVariablesInTopologicalOrder();
-        List<RandomVariable> relevantRVs = theorem1Help(bn, queryVars, evidenceVars);
+        List<RandomVariable> relevantRVs = theorem1Help(bn, queryVars, assignmentPropositions);
         Collections.reverse(relevantRVs);
-        return newNetFromRandomVars(bn, topologicalOrder, relevantRVs);
+        return newNetFromRandomVars(bn, topologicalOrder, relevantRVs, assignmentPropositions);
     }
     
     /*
@@ -41,13 +43,15 @@ public class Pruning {
     */
     private BayesNet newNetFromRandomVars(BayesianNetwork oldNet,
             List<RandomVariable> oldNetVars,
-            List<RandomVariable> newNetVars){
+            List<RandomVariable> newNetVars,
+            AssignmentProposition[] aps){
         List<FiniteNode> newNodes = new ArrayList<>();
         for (RandomVariable var : oldNetVars) {
             if (newNetVars.contains(var)) {
                 Node node = oldNet.getNode(var);
+                FiniteNode fn = (FiniteNode) node;
                 Set<Node> parents = node.getParents();
-                List<Node> newParents = new ArrayList<>();
+                Set<Node> newParents = new HashSet<>();
                 for (Node p : parents) {  // I need to set as parents the new nodes, not the ones of the old bn
                     for (Node np : newNodes) {
                         if (p.equals(np)) {
@@ -55,16 +59,8 @@ public class Pruning {
                         }
                     }
                 }
-                double[] cptVal = { 0.5, 0.5 };
-                if(parents.size() == newParents.size()){
-                    FiniteNode fn = (FiniteNode) node;
-                    cptVal = fn.getCPT().getFactorFor().getValues();
-                }
-                if(newParents.isEmpty()){
-                    newNodes.add(new FullCPTNode(var, cptVal));
-                } else{
-                    newNodes.add(new FullCPTNode(var, cptVal, newParents.toArray(new Node[parents.size()])));
-                }
+                double[] cptVal = getNewCPT(fn, newParents, aps);
+                newNodes.add(new FullCPTNode(var, cptVal, newParents.toArray(new Node[parents.size()])));
             }
         }
         List<Node> roots = new ArrayList<>();
@@ -86,10 +82,11 @@ public class Pruning {
      */
     private List<RandomVariable> theorem1Help(BayesianNetwork bn,
             RandomVariable[] queryVars,
-            RandomVariable[] evidenceVars) {
+            AssignmentProposition[] assignmentPropositions) {
         List<RandomVariable> topologicalOrder = bn.getVariablesInTopologicalOrder();
         List<RandomVariable> varList = new ArrayList<>(topologicalOrder);
         Collections.reverse(varList);
+        RandomVariable[] evidenceVars = assignmentPropositionToRandomVariable(assignmentPropositions);
         for (Iterator<RandomVariable> iterator = varList.iterator(); iterator.hasNext();) {
             RandomVariable var = iterator.next();
             boolean keep = false;
@@ -115,12 +112,21 @@ public class Pruning {
         return varList;
     }
     
+    public RandomVariable[] assignmentPropositionToRandomVariable(AssignmentProposition[] aps){
+        RandomVariable[] rvs = new RandomVariable[aps.length];
+        for(int i = 0; i < aps.length; ++i){
+            rvs[i] = aps[i].getTermVariable();
+        }
+        return rvs;
+    }
+    
     public BayesianNetwork theorem2(BayesianNetwork bn,
             RandomVariable[] queryVars,
-            RandomVariable[] evidenceVars) {
+            AssignmentProposition[] assignmentPropositions) {
         List<RandomVariable> topologicalOrder = bn.getVariablesInTopologicalOrder();
         List<RandomVariable> topologicalOrderCopy = new ArrayList<>(topologicalOrder);
         Graph moralGraph = moralGraph(bn);
+        RandomVariable[] evidenceVars = assignmentPropositionToRandomVariable(assignmentPropositions);
         topologicalOrderCopy.removeAll(Arrays.asList(queryVars));
         topologicalOrderCopy.removeAll(Arrays.asList(evidenceVars));
         List<RandomVariable> relevantVars = new ArrayList<>();
@@ -135,7 +141,7 @@ public class Pruning {
                 }
             }
         }
-        return newNetFromRandomVars(bn, topologicalOrder, relevantVars);
+        return newNetFromRandomVars(bn, topologicalOrder, relevantVars, assignmentPropositions);
     }
 
     public Graph moralGraph(BayesianNetwork bn) {
@@ -191,6 +197,26 @@ public class Pruning {
         }
         return ret;
     }
+    
+    public static double[] getNewCPT(FiniteNode node, Set<Node> parentsNewNode, AssignmentProposition[] ap){
+        double[] newCPT = null;
+        List<RandomVariable> toSumOut = new ArrayList<>();
+        for(Node parent : node.getParents()){
+            if(!parentsNewNode.contains(parent)){
+                toSumOut.add(parent.getRandomVariable());
+            }
+        }
+        Factor f = node.getCPT().getFactorFor();
+        // normalize sums
+        newCPT = f.sumOut(toSumOut.toArray(new RandomVariable[toSumOut.size()])).getValues();
+        for(int i = 0; i < newCPT.length; i = i+2){
+            double num1 = newCPT[i] / (newCPT[i] + newCPT[i+1]);
+            double num2 = newCPT[i+1] / (newCPT[i] + newCPT[i+1]);
+            newCPT[i] = num1;
+            newCPT[i+1] = num2;
+        }
+        return newCPT;
+    }
 
     public static void main(String[] args) {
         Pruning p = new Pruning();
@@ -198,16 +224,17 @@ public class Pruning {
         //BayesianNetwork bn = BayesNetExampleFactory.constructCloudySprinklerRainWetGrassNetwork();
         List<RandomVariable> varList = bn.getVariablesInTopologicalOrder();
         RandomVariable[] queryVars = new RandomVariable[1];
-        RandomVariable[] evidenceVars = new RandomVariable[1];
+        AssignmentProposition[] ap = new AssignmentProposition[1];
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("JohnCalls")) {
+            if (rv.getName().equals("Burglary")) {
                 queryVars[0] = rv;
+                FiniteNode fn = (FiniteNode) bn.getNode(rv);
             }
             if (rv.getName().equals("Alarm")) {
-                evidenceVars[0] = rv;
+                ap[0] = new AssignmentProposition(rv, true);
             }
         }
-        BayesianNetwork newBN = p.theorem1(bn, queryVars, evidenceVars);
+        BayesianNetwork newBN = p.theorem2(bn, queryVars, ap);
         System.out.println(newBN.getVariablesInTopologicalOrder());
     }
 }
