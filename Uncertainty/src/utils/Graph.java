@@ -7,6 +7,7 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +86,35 @@ public class Graph<T> {
     
     public List<T> neighborsDestructive(T v){
         return map.remove(v);
+    }
+    
+    public int get_nr_rootNode() {
+    	int count = 0;
+    	Set<T> nodi = vertexSet();
+    	for (T n : nodi) {
+            if(map.get(n).isEmpty()) {
+                count++;
+            }
+    	}	
+    	return count;
+    }
+    
+    public List<T> get_children(T v) {
+    	return map.get(v);	
+    }
+    
+    // restituisce i genitori di un nodo
+    public List<T> get_parent(T v) {
+    	List<T> parent = new ArrayList<>();
+    	Set<T> keys = map.keySet();
+    	Iterator iterator = keys.iterator();
+    	while(iterator.hasNext()) {
+            T key = (T) iterator.next();
+            if(map.get(key).contains(v)) {
+                parent.add(key);
+            }
+    	}
+    	return parent;	
     }
     
     public Graph<T> copy(){
