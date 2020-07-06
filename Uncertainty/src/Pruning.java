@@ -6,8 +6,10 @@ import aima.core.probability.bayes.FiniteNode;
 import aima.core.probability.bayes.Node;
 import aima.core.probability.bayes.impl.BayesNet;
 import aima.core.probability.bayes.impl.FullCPTNode;
+import aima.core.probability.domain.BooleanDomain;
 import aima.core.probability.example.BayesNetExampleFactory;
 import aima.core.probability.proposition.AssignmentProposition;
+import aima.core.probability.util.RandVar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +30,9 @@ import utils.Graph;
  */
 public class Pruning {
 
+    public final String MINDEGREEORDER = "minDegreeOrder";
+    public final String MINFILLORDER = "minFillOrder";
+    
     public BayesianNetwork theorem1(BayesianNetwork bn,
             RandomVariable[] queryVars,
             AssignmentProposition[] assignmentPropositions) {
@@ -217,6 +222,84 @@ public class Pruning {
         }
         return newCPT;
     }
+    
+    /*
+        implements minDegreeOrder and minFillOrder
+        Which order is chosen through the String parameter (use the constants provided in this class)
+    */
+    public List<RandomVariable> order(BayesianNetwork bn, String order){
+        if(!order.equals(MINDEGREEORDER) && !order.equals(MINFILLORDER)){
+            System.out.println("order: wrong String parameter");
+            return null;
+        }
+        List<RandomVariable> minDegreeOrder = new ArrayList<>();
+        Graph<Node> interactionGraph = moralGraph(bn);
+        Set<Node> nodeSet = interactionGraph.vertexSet();
+        while(!nodeSet.isEmpty()){
+            Node next = new FullCPTNode(new RandVar("ERROR", new BooleanDomain()), new double[] {0.5,0.5}); // make compiler happy;
+            if(order.equals(MINDEGREEORDER)){
+                next = minDegreeOrder(interactionGraph);
+            } else if(order.equals(MINFILLORDER)){
+                next = minFillOrder(interactionGraph);
+            }
+            minDegreeOrder.add(next.getRandomVariable());
+            List<Node> neighbors = interactionGraph.neighborsDestructive(next);
+            Node[] neighborsArr = neighbors.toArray(new Node[neighbors.size()]);
+            for(int i = 0; i < neighborsArr.length; ++i){
+                for(int j = i+1; j < neighborsArr.length; ++j){
+                    if(!interactionGraph.hasEdge(neighborsArr[i], neighborsArr[j])){
+                        interactionGraph.addEdge(neighborsArr[i], neighborsArr[j], true);
+                    }
+                }
+            }
+            interactionGraph.removeVertex(next);
+            nodeSet = interactionGraph.vertexSet();
+        }
+        return minDegreeOrder;
+    }
+    
+    /*
+        return the node with the smallest number of neighbors
+    */
+    private Node minDegreeOrder(Graph<Node> interactionGraph){
+        Set<Node> nodeSet = interactionGraph.vertexSet();
+        int min = nodeSet.size();
+        Node next = null;
+        for(Node n : nodeSet){
+            int degree = interactionGraph.neighbors(n).size();
+            if(degree < min){
+                min = degree;
+                next = n;
+            }
+        }
+        return next;
+    }
+    
+    /*
+        return the node whose elimination will produce the least number of new
+        edges in the interaction graph
+    */
+    private Node minFillOrder(Graph<Node> interactionGraph){
+        Set<Node> nodeSet = interactionGraph.vertexSet();
+        int min = (int) Math.pow(nodeSet.size(), 2);
+        Node next = null;
+        for(Node n : nodeSet){
+            int curr = 0;
+            Node[] neighbors = interactionGraph.neighbors(n).toArray(new Node[0]);
+            for(int i = 0; i < neighbors.length; ++i){
+                for(int j = i+1; j < neighbors.length; ++j){
+                    if(!interactionGraph.hasEdge(neighbors[i], neighbors[j])){
+                        ++curr;
+                    }
+                }
+            }
+            if(curr < min){
+                min = curr;
+                next = n;
+            }
+        }
+        return next;
+    }
 
     public static void main(String[] args) {
         Pruning p = new Pruning();
@@ -234,7 +317,10 @@ public class Pruning {
                 ap[0] = new AssignmentProposition(rv, true);
             }
         }
-        BayesianNetwork newBN = p.theorem2(bn, queryVars, ap);
-        System.out.println(newBN.getVariablesInTopologicalOrder());
+        //BayesianNetwork newBN = p.theorem2(bn, queryVars, ap);
+        //System.out.println(newBN.getVariablesInTopologicalOrder());
+        System.out.println("topologicalOrder: " + bn.getVariablesInTopologicalOrder());
+        System.out.println("minDegree: " + p.order(bn, p.MINDEGREEORDER));
+        System.out.println("minFill: " + p.order(bn, p.MINFILLORDER));
     }
 }
