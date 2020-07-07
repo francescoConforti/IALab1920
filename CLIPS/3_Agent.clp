@@ -92,7 +92,7 @@
   (exec (action guess) (x ?x) (y ?y))
   (k-cell (x ?x) (y ?y) (content water))
   =>
-  (assert (CONFLICT (x ?x) (y ?y) (reason "guess e fire sulla stessa casella")))
+  (assert (CONFLICT (x ?x) (y ?y) (reason "guess su una casella contenente acqua")))
 )
 
 ; ---------------------------------------------------------
