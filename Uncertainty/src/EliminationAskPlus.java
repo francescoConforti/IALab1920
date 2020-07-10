@@ -17,6 +17,8 @@ import aima.core.probability.bayes.Node;
 import aima.core.probability.proposition.AssignmentProposition;
 import aima.core.probability.util.ProbabilityTable;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Artificial Intelligence A Modern Approach (3rd Edition): Figure 14.11, page
@@ -83,10 +85,15 @@ public class EliminationAskPlus implements BayesInference{
                 }
             }
             factors_tm1 = computation;
+            factors_tm1 = multiplyRelevantFactors(factors_tm1);
+            for(Factor f : factors_tm1){
+                ((ProbabilityTable)f).normalize();
+            }
+            factors_tm1 = renameFactorVariables(factors_tm1, dbn);
         }
         Factor product = pointwiseProduct(factors_tm1);
-        return ((ProbabilityTable) product.pointwiseProductPOS(_identity, queryVars))
-                .normalize();
+        
+        return ((ProbabilityTable) product.pointwiseProductPOS(_identity, queryVars)).normalize();
     }
 
     // function ELIMINATION-ASK(X, e, bn) returns a distribution over X
@@ -95,32 +102,33 @@ public class EliminationAskPlus implements BayesInference{
      *
      * @param X the query variables.
      * @param e observed values for variables E.
-     * @param bn a Bayes net with variables {X} &cup; E &cup; Y /* Y = hidden
+     * @param dbn a Bayes net with variables {X} &cup; E &cup; Y /* Y = hidden
      * variables //
      * @return a distribution over the query variables.
      */
     public List<Factor> eliminationRollupSlice0(final RandomVariable[] X,
-            final AssignmentProposition[] e, final BayesianNetwork bn) {
+            final AssignmentProposition[] e, final DynamicBayesianNetwork dbn) {
 
         Set<RandomVariable> hidden = new HashSet<>();
         List<RandomVariable> VARS = new ArrayList<>();
-        calculateVariables(X, e, bn, hidden, VARS);
+        calculateVariables(X, e, dbn, hidden, VARS);
 
         // factors <- []
         List<Factor> factors = new ArrayList<>();
         // for each var in ORDER(bn.VARS) do
-        for (RandomVariable var : order(bn, VARS)) {
+        for (RandomVariable var : order(dbn, VARS)) {
             // factors <- [MAKE-FACTOR(var, e) | factors]
-            factors.add(0, makeFactor(var, e, bn));
+            factors.add(0, makeFactor(var, e, dbn));
             // if var is hidden variable then factors <- SUM-OUT(var, factors)
             if (hidden.contains(var)) {
-                factors = sumOut(var, factors, bn);
+                factors = sumOut(var, factors, dbn);
             }
         }
         factors = multiplyRelevantFactors(factors);
         for(Factor f : factors){
             ((ProbabilityTable)f).normalize();
         }
+        factors = renameFactorVariables(factors, dbn);
         
         return factors;
     }
@@ -150,6 +158,23 @@ public class EliminationAskPlus implements BayesInference{
             }
         }
         return factors;
+    }
+    
+    private List<Factor> renameFactorVariables(List<Factor> factors_tm1, DynamicBayesianNetwork dbn){
+        List<Factor> factors_t = new ArrayList<>();
+        Map<RandomVariable, RandomVariable> vt_vtm1 = dbn.getX_1_to_X_0();
+        for(Factor f : factors_tm1){
+            Set<RandomVariable> vars = f.getArgumentVariables();
+            List<RandomVariable> vars_tm1 = new ArrayList<>();
+            Iterator<RandomVariable> it = vars.iterator();
+            while(it.hasNext()){
+                RandomVariable rv = it.next();
+                vars_tm1.add(vt_vtm1.get(rv));
+            }
+            ProbabilityTable pt = new ProbabilityTable(f.getValues(), vars_tm1.toArray(new RandomVariable[vars_tm1.size()]));
+            factors_t.add(pt);
+        }
+        return factors_t;
     }
     
     // function ELIMINATION-ASK(X, e, bn) returns a distribution over X
