@@ -1,4 +1,5 @@
 
+import aima.core.probability.CategoricalDistribution;
 import aima.core.probability.Factor;
 import aima.core.probability.RandomVariable;
 import aima.core.probability.bayes.BayesianNetwork;
@@ -319,8 +320,41 @@ public class Pruning {
         }
         //BayesianNetwork newBN = p.theorem2(bn, queryVars, ap);
         //System.out.println(newBN.getVariablesInTopologicalOrder());
+        bn = p.theorem1(bn, queryVars, ap);
         System.out.println("topologicalOrder: " + bn.getVariablesInTopologicalOrder());
-        System.out.println("minDegree: " + p.order(bn, p.MINDEGREEORDER));
+        EliminationAskPlus ea = new EliminationAskPlus();
+        CategoricalDistribution cd = ea.eliminationAsk(queryVars, ap, bn);
+        System.out.print("<");
+        for (int i = 0; i < cd.getValues().length; i++) {
+            System.out.print(cd.getValues()[i]);
+            if (i < (cd.getValues().length - 1)) {
+                System.out.print(", ");
+            } else {
+                System.out.println(">");
+            }
+        }
+        List<RandomVariable> minDegree = p.order(bn, p.MINDEGREEORDER);
+        System.out.println("minDegree: " + minDegree);
+        cd = ea.eliminationAsk(queryVars, ap, bn, p.MINDEGREEORDER);
+        System.out.print("<");
+        for (int i = 0; i < cd.getValues().length; i++) {
+            System.out.print(cd.getValues()[i]);
+            if (i < (cd.getValues().length - 1)) {
+                System.out.print(", ");
+            } else {
+                System.out.println(">");
+            }
+        }
         System.out.println("minFill: " + p.order(bn, p.MINFILLORDER));
+        cd = ea.eliminationAsk(queryVars, ap, bn, p.MINFILLORDER);
+        System.out.print("<");
+        for (int i = 0; i < cd.getValues().length; i++) {
+            System.out.print(cd.getValues()[i]);
+            if (i < (cd.getValues().length - 1)) {
+                System.out.print(", ");
+            } else {
+                System.out.println(">");
+            }
+        }
     }
 }
