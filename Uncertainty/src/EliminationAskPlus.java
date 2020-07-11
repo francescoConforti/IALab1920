@@ -16,7 +16,6 @@ import aima.core.probability.bayes.FiniteNode;
 import aima.core.probability.bayes.Node;
 import aima.core.probability.proposition.AssignmentProposition;
 import aima.core.probability.util.ProbabilityTable;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -180,20 +179,6 @@ public class EliminationAskPlus implements BayesInference{
         return factors;
     }
     
-//    private List<Factor> multiplyRelevantFactors(List<Factor> factors){
-//        List<Factor> products = new ArrayList<>();
-//        Factor product = factors.get(0);
-//        Set<RandomVariable> vars0 = factors.get(0).getArgumentVariables();
-//        for(int i = 1; i < factors.size(); ++i){
-//            Set<RandomVariable> varsI = factors.get(i).getArgumentVariables();
-//            if(!Collections.disjoint(vars0, varsI)){
-//                product = product.pointwiseProduct(factors.get(i));
-//                vars0 = product.getArgumentVariables();
-//            }
-//        }
-//        products.add(product);
-//        return products;
-//    }
     
     private List<Factor> renameFactorVariables(List<Factor> factors_tm1, DynamicBayesianNetwork dbn){
         List<Factor> factors_t = new ArrayList<>();
