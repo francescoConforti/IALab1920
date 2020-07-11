@@ -56,31 +56,31 @@ public class EliminationAskPlus implements BayesInference{
 
     }
     
-    public CategoricalDistribution rollup(DynamicBayesianNetwork dbn, RandomVariable[] queryVars, List<AssignmentProposition[]> aps){
+    public CategoricalDistribution rollup(DynamicBayesianNetwork dbn, RandomVariable[] queryVars, AssignmentProposition[][] aps){
         EliminationAskPlus eap = new EliminationAskPlus();
         Set<RandomVariable> hidden = new HashSet<>(dbn.getVariablesInTopologicalOrder());
         hidden.removeAll(Arrays.asList(queryVars));
-        AssignmentProposition[] ap0 = aps.get(0);
+        AssignmentProposition[] ap0 = aps[0];
         for(int i = 0; i < ap0.length; ++i){
             hidden.removeAll(ap0[i].getScope());
         }
-        List<Factor> factors_tm1 = eap.eliminationRollupSlice0(queryVars, aps.get(0), dbn);
-        for(int t = 1; t <= aps.size(); ++t){
+        List<Factor> factors_tm1 = eap.eliminationRollupSlice0(queryVars, aps[0], dbn);
+        for(int t = 1; t <= aps.length; ++t){
             List<Factor> factors_t = new ArrayList<>();
             factors_t.addAll(factors_tm1);
             for(RandomVariable r : dbn.getX_1_VariablesInTopologicalOrder()){
-                factors_t.add(makeFactor(r, aps.get(t-1), dbn));
+                factors_t.add(makeFactor(r, aps[t-1], dbn));
             }
             for(RandomVariable r : dbn.getE_1()){
-                factors_t.add(makeFactor(r, aps.get(t-1), dbn));
+                factors_t.add(makeFactor(r, aps[t-1], dbn));
             }
             List<Factor> computation = new ArrayList<>();
-            //Collections.reverse(factors_t);
+            List<Factor> factorsTmp = new ArrayList<>(factors_t);
             for(Factor f : factors_t){
-                computation.add(0, f);
+                computation.add(f);
                 for(RandomVariable h : f.getArgumentVariables()){
-                    if (hidden.contains(h)) {
-                        computation = sumOut(h, factors_tm1, dbn);
+                    if (hidden.contains(h) && computation.containsAll(containVariable(factorsTmp, h))) {
+                        computation = sumOut(h, computation, dbn);
                     }
                 }
             }
@@ -89,11 +89,24 @@ public class EliminationAskPlus implements BayesInference{
             for(Factor f : factors_tm1){
                 ((ProbabilityTable)f).normalize();
             }
-            factors_tm1 = renameFactorVariables(factors_tm1, dbn);
+            if(t < aps.length){
+                factors_tm1 = renameFactorVariables(factors_tm1, dbn);
+            }
         }
         Factor product = pointwiseProduct(factors_tm1);
         
         return ((ProbabilityTable) product.pointwiseProductPOS(_identity, queryVars)).normalize();
+    }
+    
+    private List<Factor> containVariable(List<Factor> allFactors, RandomVariable rv){
+        List<Factor> ret = new ArrayList<>();
+        for(Factor f : allFactors){
+            if(f.contains(rv)){
+                ret.add(f);
+            }
+        }
+        allFactors.removeAll(ret);
+        return ret;
     }
 
     // function ELIMINATION-ASK(X, e, bn) returns a distribution over X
