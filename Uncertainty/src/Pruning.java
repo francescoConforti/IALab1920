@@ -66,7 +66,7 @@ public class Pruning {
                     }
                 }
                 double[] cptVal = getNewCPT(fn, newParents, aps);
-                newNodes.add(new FullCPTNode(var, cptVal, newParents.toArray(new Node[parents.size()])));
+                newNodes.add(new FullCPTNode(var, cptVal, newParents.toArray(new Node[newParents.size()])));
             }
         }
         List<Node> roots = new ArrayList<>();
@@ -305,12 +305,11 @@ public class Pruning {
     public static void main(String[] args) {
         Pruning p = new Pruning();
         BayesianNetwork bn = BayesNetExampleFactory.constructBurglaryAlarmNetwork();
-        //BayesianNetwork bn = BayesNetExampleFactory.constructCloudySprinklerRainWetGrassNetwork();
         List<RandomVariable> varList = bn.getVariablesInTopologicalOrder();
         RandomVariable[] queryVars = new RandomVariable[1];
         AssignmentProposition[] ap = new AssignmentProposition[1];
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("Burglary")) {
+            if (rv.getName().equals("JohnCalls")) {
                 queryVars[0] = rv;
                 FiniteNode fn = (FiniteNode) bn.getNode(rv);
             }
@@ -318,42 +317,45 @@ public class Pruning {
                 ap[0] = new AssignmentProposition(rv, true);
             }
         }
-        //BayesianNetwork newBN = p.theorem2(bn, queryVars, ap);
-        //System.out.println(newBN.getVariablesInTopologicalOrder());
-        bn = p.theorem1(bn, queryVars, ap);
-        System.out.println("topologicalOrder: " + bn.getVariablesInTopologicalOrder());
+        //BayesianNetwork newBN = IrrelevantEdge.irrilevanteEdgeGraph(bn, ap);
+        BayesianNetwork newBN = p.theorem1(bn, queryVars, ap);
+        newBN = p.theorem2(newBN, queryVars, ap);
         EliminationAskPlus ea = new EliminationAskPlus();
-        CategoricalDistribution cd = ea.eliminationAsk(queryVars, ap, bn);
-        System.out.print("<");
-        for (int i = 0; i < cd.getValues().length; i++) {
-            System.out.print(cd.getValues()[i]);
-            if (i < (cd.getValues().length - 1)) {
-                System.out.print(", ");
-            } else {
-                System.out.println(">");
+        List<String> orders = new ArrayList<>();
+        orders.add("topological");
+        //orders.add(p.MINDEGREEORDER);
+        orders.add(p.MINFILLORDER);
+        CategoricalDistribution cd;
+        long START;
+        long END;
+        for(String ord : orders){
+            START = System.nanoTime();
+            cd = ea.eliminationAsk(queryVars, ap, bn, ord);
+            END = System.nanoTime();
+            System.out.println("\noriginal bn, " + ord);
+            System.out.println("Time taken : " + ((END - START) / 1e+9) + " seconds");
+            System.out.print("<");
+            for (int i = 0; i < cd.getValues().length; i++) {
+                System.out.print(cd.getValues()[i]);
+                if (i < (cd.getValues().length - 1)) {
+                    System.out.print(", ");
+                } else {
+                    System.out.println(">");
+                }
             }
-        }
-        List<RandomVariable> minDegree = p.order(bn, p.MINDEGREEORDER);
-        System.out.println("minDegree: " + minDegree);
-        cd = ea.eliminationAsk(queryVars, ap, bn, p.MINDEGREEORDER);
-        System.out.print("<");
-        for (int i = 0; i < cd.getValues().length; i++) {
-            System.out.print(cd.getValues()[i]);
-            if (i < (cd.getValues().length - 1)) {
-                System.out.print(", ");
-            } else {
-                System.out.println(">");
-            }
-        }
-        System.out.println("minFill: " + p.order(bn, p.MINFILLORDER));
-        cd = ea.eliminationAsk(queryVars, ap, bn, p.MINFILLORDER);
-        System.out.print("<");
-        for (int i = 0; i < cd.getValues().length; i++) {
-            System.out.print(cd.getValues()[i]);
-            if (i < (cd.getValues().length - 1)) {
-                System.out.print(", ");
-            } else {
-                System.out.println(">");
+            START = System.nanoTime();
+            cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+            END = System.nanoTime();
+            System.out.println("\nnew bn, " + ord);
+            System.out.println("Time taken : " + ((END - START) / 1e+9) + " seconds");
+            System.out.print("<");
+            for (int i = 0; i < cd.getValues().length; i++) {
+                System.out.print(cd.getValues()[i]);
+                if (i < (cd.getValues().length - 1)) {
+                    System.out.print(", ");
+                } else {
+                    System.out.println(">");
+                }
             }
         }
     }
