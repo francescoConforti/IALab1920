@@ -66,28 +66,15 @@ public class IrrilevantEdge {
 		}
 	
 		ArrayList<FiniteNode> rootsTemp = new ArrayList<FiniteNode>();		
-		List<Node> nodeGraph = newGraph.getNode();
 		
 		for(Node n : newNodes) {
-			System.out.println(n);
 			if(n.getParents().size() == 0) {
 				rootsTemp.add((FiniteNode) n);
 			}
 		}
 		
-		System.out.println("test " + rootsTemp);
 		FiniteNode[] roots = rootsTemp.toArray(new FiniteNode[rootsTemp.size()]);		
-		
 		BayesianNetwork newBn = new BayesNet(roots);
-		
-		
-		List<RandomVariable> v = newBn.getVariablesInTopologicalOrder();
-		
-		for(RandomVariable r : v) {
-			if(newBn.getNode(r).isRoot()) {
-				System.out.println("radice" + r);
-			}
-		}
 		
 		return newBn;
 	}
