@@ -30,7 +30,7 @@ public class IrrelevantEdge {
 
             if (!eviContain(ap, nodeSource.getParents()).isEmpty()) {
                 cpt = (CPT) nodeSource.getCPD();
-                values = cpt.getConditioningCase(ap).getValues();
+                values = cpt.getFactorFor(ap).getValues();
                 Set<Node> parent = copyParents(nodeSource.getParents(), newNodes);
 
                 parent.removeAll(eviContain(ap, nodeSource.getParents()));
