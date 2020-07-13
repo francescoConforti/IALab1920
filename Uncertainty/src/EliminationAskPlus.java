@@ -16,6 +16,7 @@ import aima.core.probability.bayes.FiniteNode;
 import aima.core.probability.bayes.Node;
 import aima.core.probability.proposition.AssignmentProposition;
 import aima.core.probability.util.ProbabilityTable;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -59,6 +60,7 @@ public class EliminationAskPlus implements BayesInference{
             RandomVariable[] queryVars,
             AssignmentProposition[][] aps,
             String order){
+        Pruning p = new Pruning();
         List<Factor> factors_tm1 = eliminationRollupSlice0(queryVars, aps[0], dbn);
         for(int t = 1; t <= aps.length; ++t){
             List<Factor> factors_t = new ArrayList<>();
@@ -67,26 +69,50 @@ public class EliminationAskPlus implements BayesInference{
             List<Factor> used = new ArrayList<>();
             calculateVariables(queryVars, aps[t-1], dbn, hidden, VARS, order);
             VARS = order(dbn, VARS);
-            for (RandomVariable var : VARS) {
-                boolean factorIsTm1 = false;
-                Iterator<Factor> fit = factors_tm1.iterator();
-                while(fit.hasNext()){
-                    Factor f_tm1 = fit.next();
-                    if(f_tm1.getArgumentVariables().contains(var)){
-                        factorIsTm1 = true;
-                        if(!used.contains(f_tm1)){
-                            factors_t.add(0, f_tm1);
-                            used.add(f_tm1);
+            if(order.equals(p.MINDEGREEORDER) || order.equals(p.MINFILLORDER)){
+                Set<RandomVariable> vars_t = dbn.getX_1();
+                vars_t.addAll(dbn.getE_1());
+                for(RandomVariable var : vars_t){
+                    factors_t.add(makeFactor(var, aps[t-1], dbn));
+                }
+                factors_t.addAll(factors_tm1);
+                VARS.removeAll(Arrays.asList(queryVars));
+                for(RandomVariable var : VARS){
+                    List<Factor> mentionVar = new ArrayList<>();
+                    for(Factor f : factors_t){
+                        if(f.contains(var)){
+                            mentionVar.add(f);
                         }
-                        
+                    }
+                    if(!mentionVar.isEmpty()){
+                        factors_t.removeAll(mentionVar);
+                        Factor summedOut = pointwiseProduct(sumOut(var, mentionVar, dbn));
+                        factors_t.add(summedOut);
                     }
                 }
-                if(!factorIsTm1){
-                    factors_t.add(0, makeFactor(var, aps[t-1], dbn));
-                }
-                // if var is hidden variable then factors <- SUM-OUT(var, factors)
-                if (hidden.contains(var)) {
-                    factors_t = sumOut(var, factors_t, dbn);
+                
+            } else{ // topological
+                for (RandomVariable var : VARS) {
+                    boolean factorIsTm1 = false;
+                    Iterator<Factor> fit = factors_tm1.iterator();
+                    while(fit.hasNext()){
+                        Factor f_tm1 = fit.next();
+                        if(f_tm1.getArgumentVariables().contains(var)){
+                            factorIsTm1 = true;
+                            if(!used.contains(f_tm1)){
+                                factors_t.add(0, f_tm1);
+                                used.add(f_tm1);
+                            }
+
+                        }
+                    }
+                    if(!factorIsTm1){
+                        factors_t.add(0, makeFactor(var, aps[t-1], dbn));
+                    }
+                    // if var is hidden variable then factors <- SUM-OUT(var, factors)
+                    if (hidden.contains(var)) {
+                        factors_t = sumOut(var, factors_t, dbn);
+                    }
                 }
             }
             factors_tm1 = new ArrayList<>(factors_t);
@@ -236,29 +262,41 @@ public class EliminationAskPlus implements BayesInference{
     public CategoricalDistribution eliminationAsk(final RandomVariable[] X,
             final AssignmentProposition[] e, final BayesianNetwork bn, String order) {
 
+        Pruning p = new Pruning();
+        if(order.equals(p.MINDEGREEORDER) || order.equals(p.MINFILLORDER)){
+            return darwiche(X, e, bn, order);
+        }else{
+            return eliminationAsk(X, e, bn);
+        }
+    }
+    
+    private CategoricalDistribution darwiche(final RandomVariable[] X,
+            final AssignmentProposition[] e, final BayesianNetwork bn, String order){
         Set<RandomVariable> hidden = new HashSet<>();
         List<RandomVariable> VARS = new ArrayList<>();
         calculateVariables(X, e, bn, hidden, VARS, order);
-
-        // factors <- []
         List<Factor> factors = new ArrayList<>();
-        // for each var in ORDER(bn.VARS) do
-        for (RandomVariable var : order(bn, VARS)) {
-            // factors <- [MAKE-FACTOR(var, e) | factors]
-            factors.add(0, makeFactor(var, e, bn));
-            // if var is hidden variable then factors <- SUM-OUT(var, factors)
-            if (hidden.contains(var)) {
-                factors = sumOut(var, factors, bn);
+        for(RandomVariable var : VARS){
+            factors.add(makeFactor(var, e, bn));
+        }
+        VARS.removeAll(Arrays.asList(X));
+        for(RandomVariable var : VARS){
+            List<Factor> mentionVar = new ArrayList<>();
+            for(Factor f : factors){
+                if(f.contains(var)){
+                    mentionVar.add(f);
+                }
+            }
+            if(!mentionVar.isEmpty()){
+                factors.removeAll(mentionVar);
+                Factor summedOut = pointwiseProduct(sumOut(var, mentionVar, bn));
+                factors.add(summedOut);
             }
         }
-        // return NORMALIZE(POINTWISE-PRODUCT(factors))
         Factor product = pointwiseProduct(factors);
-        // Note: Want to ensure the order of the product matches the
-        // query variables
         return ((ProbabilityTable) product.pointwiseProductPOS(_identity, X))
                 .normalize();
     }
-
     
     @Override
     public CategoricalDistribution ask(final RandomVariable[] X,
