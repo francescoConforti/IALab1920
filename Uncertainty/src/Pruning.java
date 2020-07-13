@@ -11,6 +11,7 @@ import aima.core.probability.domain.BooleanDomain;
 import aima.core.probability.example.BayesNetExampleFactory;
 import aima.core.probability.proposition.AssignmentProposition;
 import aima.core.probability.util.RandVar;
+import bnparser.BifReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -194,7 +195,7 @@ public class Pruning {
         if (start.equals(end)) {
             return false;
         } else {
-            List<Node> neighbors = graph.neighborsDestructive(start);
+            Set<Node> neighbors = graph.neighborsDestructive(start);
             if(neighbors != null){
                 for (Node n : neighbors) {
                     ret = ret && isMSeparatedHelp(graph, n, end, eviVar);
@@ -214,12 +215,18 @@ public class Pruning {
         }
         Factor f = node.getCPT().getFactorFor();
         // normalize sums
-        newCPT = f.sumOut(toSumOut.toArray(new RandomVariable[toSumOut.size()])).getValues();
-        for(int i = 0; i < newCPT.length; i = i+2){
-            double num1 = newCPT[i] / (newCPT[i] + newCPT[i+1]);
-            double num2 = newCPT[i+1] / (newCPT[i] + newCPT[i+1]);
-            newCPT[i] = num1;
-            newCPT[i+1] = num2;
+        if(toSumOut.isEmpty()){
+            newCPT = f.getValues();
+        } else{
+            newCPT = f.sumOut(toSumOut.toArray(new RandomVariable[toSumOut.size()])).getValues();
+            // works for boolean domain
+
+            for(int i = 0; i < newCPT.length; i = i+2){
+                double num1 = newCPT[i] / (newCPT[i] + newCPT[i+1]);
+                double num2 = newCPT[i+1] / (newCPT[i] + newCPT[i+1]);
+                newCPT[i] = num1;
+                newCPT[i+1] = num2;
+            }
         }
         return newCPT;
     }
@@ -244,7 +251,7 @@ public class Pruning {
                 next = minFillOrder(interactionGraph);
             }
             minDegreeOrder.add(next.getRandomVariable());
-            List<Node> neighbors = interactionGraph.neighborsDestructive(next);
+            Set<Node> neighbors = interactionGraph.neighborsDestructive(next);
             Node[] neighborsArr = neighbors.toArray(new Node[neighbors.size()]);
             for(int i = 0; i < neighborsArr.length; ++i){
                 for(int j = i+1; j < neighborsArr.length; ++j){
@@ -264,7 +271,7 @@ public class Pruning {
     */
     private Node minDegreeOrder(Graph<Node> interactionGraph){
         Set<Node> nodeSet = interactionGraph.vertexSet();
-        int min = nodeSet.size();
+        int min = (int) Math.pow(nodeSet.size(), 2)+ 1;
         Node next = null;
         for(Node n : nodeSet){
             int degree = interactionGraph.neighbors(n).size();
@@ -304,59 +311,136 @@ public class Pruning {
 
     public static void main(String[] args) {
         Pruning p = new Pruning();
-        BayesianNetwork bn = BayesNetExampleFactory.constructBurglaryAlarmNetwork();
+        BayesianNetwork bn = BifReader.readBIF("test/link.xbif");
+        //BayesianNetwork bn = BayesNetExampleFactory.constructBurglaryAlarmNetwork();
+        
         List<RandomVariable> varList = bn.getVariablesInTopologicalOrder();
         RandomVariable[] queryVars = new RandomVariable[1];
         AssignmentProposition[] ap = new AssignmentProposition[1];
+        System.out.println(varList);
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("JohnCalls")) {
+            if (rv.getName().equals("D0_9_d_p")) {
                 queryVars[0] = rv;
-                FiniteNode fn = (FiniteNode) bn.getNode(rv);
             }
-            if (rv.getName().equals("Alarm")) {
-                ap[0] = new AssignmentProposition(rv, true);
+            if (rv.getName().equals("D1_27_a_f")) {
+                System.out.println(rv.getDomain());
+                ap[0] = new AssignmentProposition(rv, "2");
             }
         }
-        //BayesianNetwork newBN = IrrelevantEdge.irrilevanteEdgeGraph(bn, ap);
-        BayesianNetwork newBN = p.theorem1(bn, queryVars, ap);
-        newBN = p.theorem2(newBN, queryVars, ap);
         EliminationAskPlus ea = new EliminationAskPlus();
         List<String> orders = new ArrayList<>();
         orders.add("topological");
-        //orders.add(p.MINDEGREEORDER);
+        orders.add(p.MINDEGREEORDER);
         orders.add(p.MINFILLORDER);
         CategoricalDistribution cd;
         long START;
         long END;
+        long CREAT;
         for(String ord : orders){
-            START = System.nanoTime();
-            cd = ea.eliminationAsk(queryVars, ap, bn, ord);
-            END = System.nanoTime();
-            System.out.println("\noriginal bn, " + ord);
-            System.out.println("Time taken : " + ((END - START) / 1e+9) + " seconds");
-            System.out.print("<");
-            for (int i = 0; i < cd.getValues().length; i++) {
-                System.out.print(cd.getValues()[i]);
-                if (i < (cd.getValues().length - 1)) {
-                    System.out.print(", ");
-                } else {
-                    System.out.println(">");
-                }
+//            START = System.nanoTime();
+//            System.out.println("\nold bn, " + ord);
+//            try{
+//                cd = ea.eliminationAsk(queryVars, ap, bn, ord);
+//                END = System.nanoTime();
+//                System.out.println("Time taken : " + ((END - START) / 1e+9) + " seconds");
+//            } catch(RuntimeException e){
+//                System.out.println("Specified list deatailing order of mulitplier is inconsistent.");
+//            } catch(OutOfMemoryError e){
+//                System.out.println("Out of memory: java heap space");
+//            }
+//            START = System.nanoTime();
+//            BayesianNetwork newBN = p.theorem1(bn, queryVars, ap);
+//            newBN = p.theorem2(newBN, queryVars, ap);
+//            //newBN = IrrelevantEdge.irrelevantEdgeGraph(newBN, ap);
+//            CREAT = System.nanoTime();
+//            System.out.println("\nnew bn, " + ord);
+//            try{
+//                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+//                END = System.nanoTime();
+//                System.out.println("Time taken (w/ creation)  : " + ((END - START) / 1e+9) + " seconds");
+//                System.out.println("Time taken (w/o creation) : " + ((END - CREAT) / 1e+9) + " seconds");
+//            } catch(RuntimeException e){
+//                System.out.println("Specified list deatailing order of mulitplier is inconsistent.");
+//            } catch(OutOfMemoryError e){
+//                System.out.println("Out of memory: java heap space");
+//            }
+            
+            // theorem 1
+            BayesianNetwork newBN = null;
+            System.out.println("\n" + ord);
+            try{
+                START = System.nanoTime();
+                newBN = p.theorem1(bn, queryVars, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken theorem 1 : " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError e){
+                System.out.println(e.getMessage());
+            } 
+            
+            // theorem 2
+            
+            try{
+                START = System.nanoTime();
+                newBN = p.theorem2(bn, queryVars, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken theorem 2 : " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError e){
+                System.out.println(e.getMessage());
+            } 
+            
+            // prune edges
+            
+            try{
+                START = System.nanoTime();
+                newBN = IrrelevantEdge.irrelevantEdgeGraph(bn, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken prune edges : " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError | Exception e){
+                System.out.println(e.getMessage());
             }
-            START = System.nanoTime();
-            cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
-            END = System.nanoTime();
-            System.out.println("\nnew bn, " + ord);
-            System.out.println("Time taken : " + ((END - START) / 1e+9) + " seconds");
-            System.out.print("<");
-            for (int i = 0; i < cd.getValues().length; i++) {
-                System.out.print(cd.getValues()[i]);
-                if (i < (cd.getValues().length - 1)) {
-                    System.out.print(", ");
-                } else {
-                    System.out.println(">");
-                }
+            
+            // theorem 1 + 2
+            
+            try{
+                START = System.nanoTime();
+                newBN = p.theorem1(bn, queryVars, ap);
+                newBN = p.theorem2(newBN, queryVars, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken theorem 1 + 2 : " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError e){
+                System.out.println(e.getMessage());
+            } 
+            
+            // theorem 1 + edges
+           
+            try{
+                 START = System.nanoTime();
+                newBN = p.theorem1(bn, queryVars, ap);
+                newBN = IrrelevantEdge.irrelevantEdgeGraph(newBN, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken theorem 1 + edges : " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError | Exception e){
+                System.out.println(e.getMessage());
+            } 
+            
+            // theorem 2 + edges
+            
+            try{
+                START = System.nanoTime();
+                newBN = p.theorem2(bn, queryVars, ap);
+                newBN = IrrelevantEdge.irrelevantEdgeGraph(newBN, ap);
+                cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
+                END = System.nanoTime();
+                System.out.println("\nTime taken theorem 2 + edges: " + ((END - START) / 1e+9) + " seconds");
+            } catch(OutOfMemoryError | Exception e){
+                System.out.println(e.getMessage());
             }
+            
         }
     }
 }
