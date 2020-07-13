@@ -7,6 +7,7 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,12 @@ import java.util.Set;
 public class Graph<T> { 
   
     // We use Hashmap to store the edges in the graph 
-    private final Map<T, List<T> > map = new HashMap<>(); 
+    private final Map<T, Set<T> > map = new HashMap<>(); 
   
     // This function adds a new vertex to the graph 
     public void addVertex(T s) 
     { 
-        map.put(s, new ArrayList<>()); 
+        map.put(s, new HashSet<>()); 
     }
   
     // This function adds the edge 
@@ -69,8 +70,8 @@ public class Graph<T> {
     
     public void removeVertex(T v){
         map.remove(v);
-        for(Map.Entry<T, List<T>> entry : map.entrySet()){
-            List<T> neighbors = entry.getValue();
+        for(Map.Entry<T, Set<T>> entry : map.entrySet()){
+            Set<T> neighbors = entry.getValue();
             neighbors.remove(v);
         }
     }
@@ -80,11 +81,11 @@ public class Graph<T> {
         map.get(s).remove(d);
     }
     
-    public List<T> neighbors(T v){
+    public Set<T> neighbors(T v){
         return map.get(v);
     }
     
-    public List<T> neighborsDestructive(T v){
+    public Set<T> neighborsDestructive(T v){
         return map.remove(v);
     }
     
@@ -99,7 +100,7 @@ public class Graph<T> {
     	return count;
     }
     
-    public List<T> get_children(T v) {
+    public Set<T> get_children(T v) {
     	return map.get(v);	
     }
     
