@@ -319,12 +319,12 @@ public class Pruning {
         AssignmentProposition[] ap = new AssignmentProposition[1];
         System.out.println(varList);
         for (RandomVariable rv : varList) {
-            if (rv.getName().equals("D0_9_d_p")) {
+            if (rv.getName().equals("D1_27_a_f")) {
                 queryVars[0] = rv;
             }
-            if (rv.getName().equals("D1_27_a_f")) {
+            if (rv.getName().equals("D0_9_d_p")) {
                 System.out.println(rv.getDomain());
-                ap[0] = new AssignmentProposition(rv, "2");
+                ap[0] = new AssignmentProposition(rv, "N");
             }
         }
         EliminationAskPlus ea = new EliminationAskPlus();
@@ -419,8 +419,8 @@ public class Pruning {
            
             try{
                  START = System.nanoTime();
-                newBN = p.theorem1(bn, queryVars, ap);
-                newBN = IrrelevantEdge.irrelevantEdgeGraph(newBN, ap);
+                newBN = IrrelevantEdge.irrelevantEdgeGraph(bn, ap);
+                newBN = p.theorem1(newBN, queryVars, ap);
                 cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
                 END = System.nanoTime();
                 System.out.println("\nTime taken theorem 1 + edges : " + ((END - START) / 1e+9) + " seconds");
@@ -432,8 +432,8 @@ public class Pruning {
             
             try{
                 START = System.nanoTime();
-                newBN = p.theorem2(bn, queryVars, ap);
-                newBN = IrrelevantEdge.irrelevantEdgeGraph(newBN, ap);
+                newBN = IrrelevantEdge.irrelevantEdgeGraph(bn, ap);
+                newBN = p.theorem2(newBN, queryVars, ap);
                 cd = ea.eliminationAsk(queryVars, ap, newBN, ord);
                 END = System.nanoTime();
                 System.out.println("\nTime taken theorem 2 + edges: " + ((END - START) / 1e+9) + " seconds");
